@@ -170,8 +170,8 @@ public class RecurrenceService : IRecurrenceService
             Frequency = frequency,
             DaysOfWeek = daysOfWeek,
             DayOfMonth = dayOfMonth,
-            StartDate = startDate.ToUniversalTime(),
-            EndDate = endDate?.ToUniversalTime(),
+            StartDate = NormalizeToUtc(startDate),
+            EndDate = endDate.HasValue ? NormalizeToUtc(endDate.Value) : null,
             Timezone = timezone,
             GenerateOnlyWhenPreviousComplete = generateOnlyWhenPreviousComplete,
             IsPaused = isPaused,
@@ -236,21 +236,27 @@ public class RecurrenceService : IRecurrenceService
     if (rule == null) return 0;
 
     var created = 0;
-    var currentDate = DateTime.UtcNow.Date;
 
-    // If the rule has existing occurrences, start from the last one
-    var existingOccurrences = await _recurrenceRepository.GetOccurrencesByRuleIdAsync(ruleId);
-    if (existingOccurrences.Any())
-    {
-        currentDate = existingOccurrences.Max(o => o.OccurrenceDate).Date;
-    }
+    // Seed the walk from the rule's own StartDate, not "today" - the bug this replaces always
+    // started from DateTime.UtcNow.Date and then computed "the next day" from there, so a fresh
+    // DAILY rule with StartDate = today produced its first occurrence dated TOMORROW no matter
+    // what StartDate actually was. That occurrence's OccurrenceDate (tomorrow) then always failed
+    // GetPendingOccurrencesAsync's "OccurrenceDate <= now" filter until the next calendar day,
+    // so "Generate Now" + "Materialize Pending" produced 0 tasks on the day the rule was created.
+    //
+    // Seeding one day *before* StartDate lets the existing "AddDays(1)" / "next matching day"
+    // calculators below land exactly on StartDate itself for a brand-new rule's first occurrence.
+    var existingOccurrences = (await _recurrenceRepository.GetOccurrencesByRuleIdAsync(ruleId)).ToList();
+    var currentDate = existingOccurrences.Any()
+        ? existingOccurrences.Max(o => o.OccurrenceDate).Date
+        : rule.StartDate.Date.AddDays(-1);
 
     // Generate up to 10 future occurrences
     for (int i = 0; i < 10; i++)
     {
         // Calculate the next occurrence date based on frequency
         DateTime? nextDate = null;
-        
+
         switch (rule.Frequency)
         {
             case "DAILY":
@@ -417,38 +423,62 @@ public class RecurrenceService : IRecurrenceService
             .FirstOrDefault();
     }
 
+    // Was previously broken: on the first miss it reset `current` back to the seed date before
+    // the next iteration, instead of advancing - so it could only ever return the seed date
+    // itself or seed+1, never any day further out. A WEEKLY rule whose selected weekday wasn't
+    // "today" or "tomorrow" relative to the seed would silently generate nothing at all.
     private DateTime? GetNextDayOfWeek(DateTime currentDate, string? daysOfWeek)
-{
-    if (string.IsNullOrWhiteSpace(daysOfWeek)) return null;
-
-    var days = daysOfWeek.Split(',').Select(int.Parse).OrderBy(d => d).ToList();
-    var current = currentDate.Date;
-
-    for (int i = 0; i < 8; i++)
     {
-        current = current.AddDays(i == 0 ? 1 : 0);
-        if (days.Contains((int)current.DayOfWeek))
+        if (string.IsNullOrWhiteSpace(daysOfWeek)) return null;
+
+        var days = daysOfWeek.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(int.Parse).ToList();
+        var current = currentDate.Date;
+
+        for (int i = 1; i <= 7; i++)
         {
-            return current;
+            var candidate = current.AddDays(i);
+            if (days.Contains((int)candidate.DayOfWeek))
+                return candidate;
         }
-        current = currentDate.Date; // Reset for next iteration
+
+        return null;
     }
 
-    return null;
-}
+    // Was previously broken: always jumped a full month ahead regardless of whether the target
+    // day-of-month, in the seed date's own month, was still a valid "after the seed" candidate -
+    // so a MONTHLY rule starting today with a day-of-month still to come this month skipped the
+    // current month entirely and generated its first occurrence a month later than it should.
+    private DateTime? GetNextDayOfMonth(DateTime currentDate, string? dayOfMonth)
+    {
+        if (string.IsNullOrWhiteSpace(dayOfMonth)) return null;
+        var day = int.TryParse(dayOfMonth, out var dayValue) ? dayValue : 1;
 
-private DateTime? GetNextDayOfMonth(DateTime currentDate, string? dayOfMonth)
-{
-    if (string.IsNullOrWhiteSpace(dayOfMonth)) return null;
+        var seed = currentDate.Date;
+        var probe = new DateTime(seed.Year, seed.Month, 1);
+        for (int i = 0; i < 12; i++)
+        {
+            var maxDay = DateTime.DaysInMonth(probe.Year, probe.Month);
+            var candidate = new DateTime(probe.Year, probe.Month, Math.Min(day, maxDay));
+            if (candidate > seed)
+                return candidate;
+            probe = probe.AddMonths(1);
+        }
 
-    var current = currentDate.Date.AddMonths(1);
-    var day = int.TryParse(dayOfMonth, out var dayValue) ? dayValue : 1;
+        return null;
+    }
 
-    var maxDay = DateTime.DaysInMonth(current.Year, current.Month);
-    var targetDay = Math.Min(day, maxDay);
-
-    return new DateTime(current.Year, current.Month, targetDay);
-}
+    // A DateTime bound from JSON with no timezone offset arrives as DateTimeKind.Unspecified;
+    // ToUniversalTime() would then treat it as the server's LOCAL time and shift it by the
+    // server's UTC offset - wrong when the caller actually meant UTC (or already sent a 'Z'
+    // string, which binds as Kind=Utc and needs no conversion at all). Specify Utc directly for
+    // Unspecified input instead of guessing via a local-time conversion.
+    public static DateTime NormalizeToUtc(DateTime value) => value.Kind switch
+    {
+        DateTimeKind.Utc => value,
+        DateTimeKind.Local => value.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+    };
 
     public async Task<int> MaterializePendingOccurrencesAsync(int actorId)
     {

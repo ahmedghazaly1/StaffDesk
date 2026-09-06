@@ -10,3 +10,4 @@ D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.dll
 D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\refint\StaffDesk.Core.dll
 D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.pdb
 D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\ref\StaffDesk.Core.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.sourcelink.json

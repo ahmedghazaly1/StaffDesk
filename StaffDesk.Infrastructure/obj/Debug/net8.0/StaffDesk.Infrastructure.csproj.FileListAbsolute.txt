@@ -13,3 +13,4 @@ D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infras
 D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\refint\StaffDesk.Infrastructure.dll
 D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.pdb
 D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\ref\StaffDesk.Infrastructure.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.sourcelink.json

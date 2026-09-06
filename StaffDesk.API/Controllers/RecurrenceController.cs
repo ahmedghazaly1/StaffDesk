@@ -6,6 +6,7 @@ using StaffDesk.API.Filters;
 using StaffDesk.Core.Exceptions;
 using StaffDesk.Core.Interfaces;
 using StaffDesk.Core.Entities;
+using StaffDesk.Core.Services;
 
 namespace StaffDesk.API.Controllers;
 
@@ -237,8 +238,8 @@ public class RecurrenceController : ApiControllerBase
         rule.Frequency = dto.Frequency;
         rule.DaysOfWeek = dto.DaysOfWeek;
         rule.DayOfMonth = dto.DayOfMonth;
-        rule.StartDate = dto.StartDate.ToUniversalTime();
-        rule.EndDate = dto.EndDate?.ToUniversalTime();
+        rule.StartDate = RecurrenceService.NormalizeToUtc(dto.StartDate);
+        rule.EndDate = dto.EndDate.HasValue ? RecurrenceService.NormalizeToUtc(dto.EndDate.Value) : null;
         rule.Timezone = dto.Timezone;
         rule.GenerateOnlyWhenPreviousComplete = dto.GenerateOnlyWhenPreviousComplete;
         rule.IsPaused = dto.IsPaused;

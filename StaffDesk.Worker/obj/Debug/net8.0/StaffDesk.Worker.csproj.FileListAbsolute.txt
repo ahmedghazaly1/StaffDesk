@@ -65,3 +65,4 @@ D:\PROJECTS\StaffDesk\StaffDesk.Worker\obj\Debug\net8.0\StaffDesk.Worker.pdb
 D:\PROJECTS\StaffDesk\StaffDesk.Worker\obj\Debug\net8.0\StaffDesk.Worker.genruntimeconfig.cache
 D:\PROJECTS\StaffDesk\StaffDesk.Worker\obj\Debug\net8.0\ref\StaffDesk.Worker.dll
 D:\PROJECTS\StaffDesk\StaffDesk.Worker\bin\Debug\net8.0\Microsoft.Extensions.Http.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Worker\obj\Debug\net8.0\StaffDesk.Worker.sourcelink.json

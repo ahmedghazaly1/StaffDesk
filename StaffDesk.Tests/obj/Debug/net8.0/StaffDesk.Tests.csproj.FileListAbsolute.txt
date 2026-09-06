@@ -151,3 +151,4 @@ D:\PROJECTS\StaffDesk\StaffDesk.Tests\bin\Debug\net8.0\StaffDesk.API.dll
 D:\PROJECTS\StaffDesk\StaffDesk.Tests\bin\Debug\net8.0\StaffDesk.API.pdb
 D:\PROJECTS\StaffDesk\StaffDesk.Tests\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.dll
 D:\PROJECTS\StaffDesk\StaffDesk.Tests\bin\Debug\net8.0\Microsoft.Extensions.Http.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Tests\obj\Debug\net8.0\StaffDesk.Tests.sourcelink.json

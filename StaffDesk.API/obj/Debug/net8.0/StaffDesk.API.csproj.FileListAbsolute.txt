@@ -138,3 +138,4 @@ D:\PROJECTS\StaffDesk\StaffDesk.API\obj\Debug\net8.0\StaffDesk.API.genruntimecon
 D:\PROJECTS\StaffDesk\StaffDesk.API\obj\Debug\net8.0\ref\StaffDesk.API.dll
 D:\PROJECTS\StaffDesk\StaffDesk.API\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.dll
 D:\PROJECTS\StaffDesk\StaffDesk.API\bin\Debug\net8.0\Microsoft.Extensions.Http.dll
+D:\PROJECTS\StaffDesk\StaffDesk.API\obj\Debug\net8.0\StaffDesk.API.sourcelink.json
