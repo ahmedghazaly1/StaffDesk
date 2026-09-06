@@ -1,0 +1,15 @@
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.csproj.AssemblyReference.cache
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.AssemblyInfoInputs.cache
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.AssemblyInfo.cs
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.csproj.CoreCompileInputs.cache
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\bin\Debug\net8.0\StaffDesk.Infrastructure.deps.json
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\bin\Debug\net8.0\StaffDesk.Infrastructure.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\bin\Debug\net8.0\StaffDesk.Infrastructure.pdb
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\bin\Debug\net8.0\StaffDesk.Core.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\bin\Debug\net8.0\StaffDesk.Core.pdb
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDes.F2C1C00D.Up2Date
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\refint\StaffDesk.Infrastructure.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.pdb
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\ref\StaffDesk.Infrastructure.dll

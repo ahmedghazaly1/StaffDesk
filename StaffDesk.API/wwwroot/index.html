@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StaffDesk - Employee Directory</title>
+    <link rel="stylesheet" href="style.css?v=8" />
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+                if (localStorage.getItem('lang') === 'ar') {
+                    document.documentElement.setAttribute('lang', 'ar');
+                    document.documentElement.setAttribute('dir', 'rtl');
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
+</head>
+<body data-i18n-doc-title="doc.title">
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <button type="button" class="brand" onclick="showDashboard()" data-i18n-aria="brand.home">
+                <span class="brand-mark">SD</span>
+                <span class="brand-text">
+                    <strong>StaffDesk</strong>
+                    <small data-i18n="brand.tagline">Workforce operations</small>
+                </span>
+            </button>
+
+            <div class="header-right">
+                <div class="notif-wrap">
+                    <button class="btn-icon" id="notif-bell" onclick="toggleNotifications(event)" data-i18n-aria="notif.open">
+                        🔔<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+                    </button>
+                    <div class="notif-panel" id="notif-panel" style="display:none;">
+                        <div class="notif-panel-header">
+                            <h3 data-i18n="notif.title">Notifications</h3>
+                            <button class="btn-secondary btn-sm" onclick="markAllNotificationsRead()" data-i18n="notif.markAll">Mark all read</button>
+                        </div>
+                        <div id="notif-list" class="notif-list"></div>
+                    </div>
+                </div>
+
+                <button type="button" class="user-chip" id="user-chip" onclick="showProfile()" data-i18n-aria="chip.profile">
+                    <div class="avatar" id="user-avatar">A</div>
+                    <span class="user-meta">
+                        <span id="user-info" data-i18n="common.user">User</span>
+                        <span class="user-role" id="user-role"></span>
+                    </span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Primary navigation -->
+        <nav class="app-nav" data-i18n-aria="nav.primary">
+            <button type="button" class="nav-burger" id="nav-burger"
+                    onclick="toggleNavMenu(event)" aria-expanded="false" aria-controls="nav-list">
+                <span class="burger-icon" aria-hidden="true"></span>
+                <span data-i18n="nav.menu">Menu</span>
+            </button>
+
+            <ul class="nav-list" id="nav-list">
+                <li class="nav-cell">
+                    <button id="nav-dashboard" class="nav-link active" onclick="showDashboard()">
+                        <span aria-hidden="true">🏠</span> <span data-i18n="nav.dashboard">Dashboard</span>
+                    </button>
+                </li>
+
+                <li class="nav-cell nav-group" data-nav-group="work">
+                    <button type="button" class="nav-link nav-group-btn"
+                            onclick="toggleNavGroup(event, 'work')" aria-expanded="false" aria-haspopup="true">
+                        <span aria-hidden="true">🗂️</span> <span data-i18n="nav.work">Work</span>
+                        <span class="nav-caret" aria-hidden="true"></span>
+                    </button>
+                    <div class="nav-menu" role="menu">
+                        <button id="nav-tasks" class="nav-item" role="menuitem" onclick="showTasks()">
+                            <span class="nav-item-icon" aria-hidden="true">📋</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.tasks">Tasks</strong><small data-i18n="nav.tasks.desc">Board, filters and bulk actions</small></span>
+                        </button>
+                        <button id="nav-requests" class="nav-item" role="menuitem" onclick="showRequests()">
+                            <span class="nav-item-icon" aria-hidden="true">📥</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.requests">Requests</strong><small data-i18n="nav.requests.desc">Intake and triage queue</small></span>
+                        </button>
+                        <button id="nav-templates" class="nav-item" role="menuitem" onclick="showTemplates()">
+                            <span class="nav-item-icon" aria-hidden="true">🧩</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.templates">Templates</strong><small data-i18n="nav.templates.desc">Templates and recurrence rules</small></span>
+                        </button>
+                        <button id="nav-delegations" class="nav-item" role="menuitem" onclick="showDelegations()">
+                            <span class="nav-item-icon" aria-hidden="true">🔀</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.delegations">Delegations</strong><small data-i18n="nav.delegations.desc">Temporary authority hand-off</small></span>
+                        </button>
+                    </div>
+                </li>
+
+                <li class="nav-cell nav-group" data-nav-group="people">
+                    <button type="button" class="nav-link nav-group-btn"
+                            onclick="toggleNavGroup(event, 'people')" aria-expanded="false" aria-haspopup="true">
+                        <span aria-hidden="true">👥</span> <span data-i18n="nav.people">People</span>
+                        <span class="nav-caret" aria-hidden="true"></span>
+                    </button>
+                    <div class="nav-menu" role="menu">
+                        <button id="nav-employees" class="nav-item" role="menuitem" onclick="showEmployees()">
+                            <span class="nav-item-icon" aria-hidden="true">👤</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.employees">Employees</strong><small data-i18n="nav.employees.desc">Directory and profiles</small></span>
+                        </button>
+                        <button id="nav-departments" class="nav-item" role="menuitem" onclick="showDepartments()">
+                            <span class="nav-item-icon" aria-hidden="true">🏢</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.departments">Departments</strong><small data-i18n="nav.departments.desc">Teams and their managers</small></span>
+                        </button>
+                        <button id="nav-levels" class="nav-item" role="menuitem" onclick="showLevels()">
+                            <span class="nav-item-icon" aria-hidden="true">🎖️</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.levels">Levels</strong><small data-i18n="nav.levels.desc">Seniority ladder</small></span>
+                        </button>
+                    </div>
+                </li>
+
+                <li class="nav-cell nav-group" data-nav-group="time">
+                    <button type="button" class="nav-link nav-group-btn"
+                            onclick="toggleNavGroup(event, 'time')" aria-expanded="false" aria-haspopup="true">
+                        <span aria-hidden="true">🗓️</span> <span data-i18n="nav.time">Time</span>
+                        <span class="nav-caret" aria-hidden="true"></span>
+                    </button>
+                    <div class="nav-menu" role="menu">
+                        <button id="nav-leave" class="nav-item" role="menuitem" onclick="showLeave()">
+                            <span class="nav-item-icon" aria-hidden="true">🌴</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.leave">Leave</strong><small data-i18n="nav.leave.desc">Requests and approvals</small></span>
+                        </button>
+                        <button id="nav-capacity" class="nav-item" role="menuitem" onclick="showCapacity()">
+                            <span class="nav-item-icon" aria-hidden="true">📊</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.capacity">Capacity</strong><small data-i18n="nav.capacity.desc">Availability and workload</small></span>
+                        </button>
+                        <button id="nav-timesheets" class="nav-item" role="menuitem" onclick="showTimesheets()">
+                            <span class="nav-item-icon" aria-hidden="true">⏱️</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.timesheets">Timesheets</strong><small data-i18n="nav.timesheets.desc">Weekly submission and review</small></span>
+                        </button>
+                    </div>
+                </li>
+
+                <li class="nav-cell nav-group" data-nav-group="insights">
+                    <button type="button" class="nav-link nav-group-btn"
+                            onclick="toggleNavGroup(event, 'insights')" aria-expanded="false" aria-haspopup="true">
+                        <span aria-hidden="true">📈</span> <span data-i18n="nav.insights">Insights</span>
+                        <span class="nav-caret" aria-hidden="true"></span>
+                    </button>
+                    <div class="nav-menu" role="menu">
+                        <button id="nav-analytics" class="nav-item" role="menuitem" onclick="showAnalytics()">
+                            <span class="nav-item-icon" aria-hidden="true">📈</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.analytics">Analytics</strong><small data-i18n="nav.analytics.desc">Flow, throughput and SLA</small></span>
+                        </button>
+                        <button id="nav-performance" class="nav-item" role="menuitem" onclick="showPerformance()">
+                            <span class="nav-item-icon" aria-hidden="true">⭐</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.performance">Performance</strong><small data-i18n="nav.performance.desc">Review cycles and goals</small></span>
+                        </button>
+                    </div>
+                </li>
+
+                <li class="nav-cell nav-group" data-nav-group="system">
+                    <button type="button" class="nav-link nav-group-btn"
+                            onclick="toggleNavGroup(event, 'system')" aria-expanded="false" aria-haspopup="true">
+                        <span aria-hidden="true">⚙️</span> <span data-i18n="nav.system">System</span>
+                        <span class="nav-caret" aria-hidden="true"></span>
+                    </button>
+                    <div class="nav-menu nav-menu-right" role="menu">
+                        <button id="nav-audit" class="nav-item" role="menuitem" onclick="showAudit()" style="display:none;">
+                            <span class="nav-item-icon" aria-hidden="true">🧾</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.audit">Audit</strong><small data-i18n="nav.audit.desc">Event log, chain verify, exports</small></span>
+                        </button>
+                        <button id="nav-security" class="nav-item" role="menuitem" onclick="showSecurity()">
+                            <span class="nav-item-icon" aria-hidden="true">🔐</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.security">Security</strong><small data-i18n="nav.security.desc">Active sessions and access</small></span>
+                        </button>
+                        <button id="nav-platform" class="nav-item" role="menuitem" onclick="showPlatform()">
+                            <span class="nav-item-icon" aria-hidden="true">🔌</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.platform">Platform</strong><small data-i18n="nav.platform.desc">API keys and webhooks</small></span>
+                        </button>
+                        <button id="nav-operations" class="nav-item" role="menuitem" onclick="showOperations()" style="display:none;">
+                            <span class="nav-item-icon" aria-hidden="true">🩺</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.operations">Operations</strong><small data-i18n="nav.operations.desc">Health, jobs and alerts</small></span>
+                        </button>
+                        <button id="nav-calendars" class="nav-item" role="menuitem" onclick="showCalendars()" style="display:none;">
+                            <span class="nav-item-icon" aria-hidden="true">📅</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.calendars">Calendars</strong><small data-i18n="nav.calendars.desc">Working days and holidays</small></span>
+                        </button>
+                        <button id="nav-sla" class="nav-item" role="menuitem" onclick="showSla()" style="display:none;">
+                            <span class="nav-item-icon" aria-hidden="true">⏳</span>
+                            <span class="nav-item-text"><strong data-i18n="nav.sla">SLA</strong><small data-i18n="nav.sla.desc">Policies and response targets</small></span>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ========================================== -->
+        <!-- DASHBOARD / MY WORK VIEW -->
+        <!-- ========================================== -->
+        <section id="dashboard-view">
+            <div class="section-header">
+                <h2>🏠 <span data-i18n="page.myWork">My Work</span></h2>
+            </div>
+            <div id="mywork-strip" class="stat-grid"></div>
+            <div id="mywork-task-list" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- DEPARTMENTS VIEW -->
+        <!-- ========================================== -->
+        <section id="departments-view" style="display:none;">
+            <div class="section-header">
+                <h2>🏢 <span data-i18n="page.departments">Departments</span></h2>
+                <button class="btn-primary" onclick="showCreateDepartment()" data-i18n="action.newDepartment">+ New Department</button>
+            </div>
+            <div id="department-list" class="card-grid"></div>
+
+            <div id="create-department-form" class="form-card" style="display:none;">
+                <h3 data-i18n="form.createDepartment">Create Department</h3>
+                <form onsubmit="createDepartment(event)">
+                    <div class="form-group">
+                        <label data-i18n="label.name">Name</label>
+                        <input type="text" id="dept-name" required placeholder="e.g., Engineering" / data-i18n-placeholder="ui.e_g_engineering">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.location">Location</label>
+                        <input type="text" id="dept-location" required placeholder="e.g., Cairo Office" / data-i18n-placeholder="ui.e_g_cairo_office">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                        <button type="button" class="btn-secondary" onclick="hideCreateDepartment()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="dept-error" class="error" style="display:none;"></div>
+            </div>
+
+            <div id="edit-department-form" class="form-card" style="display:none;">
+                <h3 data-i18n="form.editDepartment">Edit Department</h3>
+                <form onsubmit="updateDepartment(event)">
+                    <input type="hidden" id="edit-dept-id" />
+                    <div class="form-group">
+                        <label data-i18n="label.name">Name</label>
+                        <input type="text" id="edit-dept-name" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.location">Location</label>
+                        <input type="text" id="edit-dept-location" required />
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.update">Update</button>
+                        <button type="button" class="btn-secondary" onclick="hideEditDepartment()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="edit-dept-error" class="error" style="display:none;"></div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- EMPLOYEES VIEW -->
+        <!-- ========================================== -->
+        <section id="employees-view" style="display:none;">
+            <div class="section-header">
+                <h2>👥 <span data-i18n="page.employees">Employees</span></h2>
+                <button id="btn-new-employee" class="btn-primary" onclick="showCreateEmployee()" data-i18n="action.newEmployee">+ New Employee</button>
+            </div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="search-input" data-i18n-placeholder="filter.searchEmployees" placeholder="Search by name..." oninput="searchEmployees()" />
+                </div>
+                <div class="pagination">
+                    <button id="prev-btn" onclick="previousPage()" data-i18n="common.prev">◀ Prev</button>
+                    <span id="page-info" data-i18n="ui.page_1_of_1">Page 1 of 1</span>
+                    <button id="next-btn" onclick="nextPage()" data-i18n="common.next">Next ▶</button>
+                </div>
+            </div>
+
+            <div id="employee-list" class="table-container"></div>
+
+            <div id="create-employee-form" class="form-card" style="display:none;">
+                <h3 data-i18n="form.createEmployee">Create Employee</h3>
+                <form onsubmit="createEmployee(event)">
+                    <div class="form-group">
+                        <label data-i18n="label.fullName">Full Name</label>
+                        <input type="text" id="emp-name" required placeholder="e.g., John Smith" / data-i18n-placeholder="ui.e_g_john_smith">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.jobTitle">Job Title</label>
+                        <input type="text" id="emp-title" required placeholder="e.g., Software Engineer" / data-i18n-placeholder="ui.e_g_software_engineer">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="emp-department" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="label.level">Seniority Level</label>
+                            <select id="emp-level" required></select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                        <button type="button" class="btn-secondary" onclick="hideCreateEmployee()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="emp-error" class="error" style="display:none;"></div>
+            </div>
+
+            <div id="edit-employee-form" class="form-card" style="display:none;">
+                <h3 data-i18n="form.editEmployee">Edit Employee</h3>
+                <form onsubmit="updateEmployee(event)">
+                    <input type="hidden" id="edit-emp-id" />
+                    <div class="form-group">
+                        <label data-i18n="label.fullName">Full Name</label>
+                        <input type="text" id="edit-emp-name" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.jobTitle">Job Title</label>
+                        <input type="text" id="edit-emp-title" required />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="edit-emp-department" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="label.level">Seniority Level</label>
+                            <select id="edit-emp-level" required></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.manager">Manager</label>
+                            <select id="edit-emp-manager"><option value="" data-i18n="label.none">None</option></select>
+                        </div>
+                        <div class="form-group" style="display:flex;align-items:center;gap:12px;padding-top:24px;">
+                            <label>
+                                <input type="checkbox" id="edit-emp-active" checked />
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.update">Update</button>
+                        <button type="button" class="btn-secondary" onclick="hideEditEmployee()" data-i18n="common.cancel">Cancel</button>
+                        <button type="button" class="btn-secondary" id="btn-handover" onclick="showHandoverDialog()" data-i18n="ui.handover_tasks">↪ Handover Tasks</button>
+                    </div>
+                </form>
+                <div id="edit-emp-error" class="error" style="display:none;"></div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- LEVELS VIEW -->
+        <!-- ========================================== -->
+        <section id="levels-view" style="display:none;">
+            <div class="section-header">
+                <h2>📊 <span data-i18n="page.levels">Seniority Levels</span></h2>
+                <button id="btn-new-level" class="btn-primary" onclick="showCreateLevel()" data-i18n="action.newLevel">+ New Level</button>
+            </div>
+            <div id="level-list" class="card-grid"></div>
+
+            <div id="create-level-form" class="form-card" style="display:none;">
+                <h3 data-i18n="ui.create_seniority_level">Create Seniority Level</h3>
+                <form onsubmit="createLevel(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.name">Name</label>
+                            <input type="text" id="level-name" required placeholder="e.g., Principal" / data-i18n-placeholder="ui.e_g_principal">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="label.rank">Rank</label>
+                            <input type="number" id="level-rank" required placeholder="e.g., 45" / data-i18n-placeholder="ui.e_g_45">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <input type="text" id="level-description" data-i18n-placeholder="common.optionalDescription" placeholder="Optional description" />
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                        <button type="button" class="btn-secondary" onclick="hideCreateLevel()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="level-error" class="error" style="display:none;"></div>
+            </div>
+
+            <div id="edit-level-form" class="form-card" style="display:none;">
+                <h3 data-i18n="ui.edit_seniority_level">Edit Seniority Level</h3>
+                <form onsubmit="updateLevel(event)">
+                    <input type="hidden" id="edit-level-id" />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.name">Name</label>
+                            <input type="text" id="edit-level-name" required />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="label.rank">Rank</label>
+                            <input type="number" id="edit-level-rank" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <input type="text" id="edit-level-description" />
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="edit-level-active" checked />
+                            Active
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.update">Update</button>
+                        <button type="button" class="btn-secondary" onclick="hideEditLevel()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="edit-level-error" class="error" style="display:none;"></div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TASKS VIEW -->
+        <!-- ========================================== -->
+        <section id="tasks-view" style="display:none;">
+            <div class="section-header">
+                <h2>✅ <span data-i18n="page.tasks">Tasks</span></h2>
+                <button id="btn-new-task" class="btn-primary" onclick="showCreateTask()" data-i18n="action.newTask">+ New Task</button>
+            </div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="task-search" data-i18n-placeholder="filter.searchTasks" placeholder="Search tasks..." oninput="applyTaskFilters()" />
+                    <select id="saved-view-select" onchange="applySavedView()" title="Saved views">
+                        <option value="" data-i18n="filter.savedView">— Saved View —</option>
+                    </select>
+                    <button class="btn-secondary btn-sm" onclick="toggleSaveViewForm()" title="Save current filters">💾 Save View</button>
+                    <select id="filter-status" onchange="applyTaskFilters()">
+                        <option value="" data-i18n="filter.allStatus">All Status</option>
+                        <option value="OPEN" data-i18n="status.OPEN">Open</option>
+                        <option value="IN_PROGRESS" data-i18n="status.IN_PROGRESS">In Progress</option>
+                        <option value="BLOCKED" data-i18n="status.BLOCKED">Blocked</option>
+                        <option value="IN_REVIEW" data-i18n="status.IN_REVIEW">In Review</option>
+                        <option value="DONE" data-i18n="status.DONE">Done</option>
+                        <option value="CANCELLED" data-i18n="status.CANCELLED">Cancelled</option>
+                    </select>
+                    <select id="filter-priority" onchange="applyTaskFilters()">
+                        <option value="" data-i18n="filter.allPriority">All Priority</option>
+                        <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
+                        <option value="HIGH" data-i18n="priority.HIGH">High</option>
+                        <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
+                        <option value="LOW" data-i18n="priority.LOW">Low</option>
+                    </select>
+                    <button class="btn-secondary btn-sm" onclick="resetTaskFilters()" data-i18n="common.reset">Reset</button>
+                </div>
+                <div class="pagination">
+                    <button id="task-prev-btn" onclick="taskPreviousPage()" data-i18n="common.prev">◀ Prev</button>
+                    <span id="task-page-info" data-i18n="ui.page_1_of_1">Page 1 of 1</span>
+                    <button id="task-next-btn" onclick="taskNextPage()" data-i18n="common.next">Next ▶</button>
+                </div>
+            </div>
+
+            <div id="save-view-form" class="form-card" style="display:none;margin-bottom:16px;">
+                <h3 data-i18n="common.saveViewTitle">Save Current Filters as View</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label data-i18n="label.name">Name</label>
+                        <input type="text" id="save-view-name" placeholder="e.g., My blocked tasks" / data-i18n-placeholder="ui.e_g_my_blocked_tasks">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="filter.visibility">Visibility</label>
+                        <select id="save-view-visibility">
+                            <option value="PRIVATE" data-i18n="filter.private">Private</option>
+                            <option value="DEPARTMENT" data-i18n="filter.department">Department</option>
+                            <option value="PUBLIC" data-i18n="filter.public">Public</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary btn-sm" onclick="saveCurrentView()" data-i18n="common.save">Save</button>
+                    <button class="btn-secondary btn-sm" onclick="toggleSaveViewForm()" data-i18n="common.cancel">Cancel</button>
+                </div>
+            </div>
+
+            <div id="bulk-job-status" class="job-status-bar" style="display:none;"></div>
+
+            <div id="bulk-actions-bar" class="bulk-actions-bar" style="display:none;">
+                <span id="bulk-selected-count" class="bulk-count" data-i18n="ui.0_selected">0 selected</span>
+                <select id="bulk-status" title="Bulk status change">
+                    <option value="" data-i18n="filter.status">— Status —</option>
+                    <option value="OPEN" data-i18n="status.OPEN">Open</option>
+                    <option value="IN_PROGRESS" data-i18n="status.IN_PROGRESS">In Progress</option>
+                    <option value="IN_REVIEW" data-i18n="status.IN_REVIEW">In Review</option>
+                    <option value="BLOCKED" data-i18n="status.BLOCKED">Blocked</option>
+                    <option value="DONE" data-i18n="status.DONE">Done</option>
+                    <option value="CANCELLED" data-i18n="status.CANCELLED">Cancelled</option>
+                </select>
+                <select id="bulk-assignee" title="Bulk assignee change">
+                    <option value="" data-i18n="filter.assignee">— Assignee —</option>
+                    <option value="unassigned" data-i18n="common.unassigned">Unassigned</option>
+                </select>
+                <label class="bulk-archive-label">
+                    <input type="checkbox" id="bulk-archive" /> <span data-i18n="filter.archive">Archive</span>
+                </label>
+                <input type="text" id="bulk-tags" data-i18n-placeholder="filter.tags" placeholder="Tags (comma-separated)" />
+                <button id="bulk-delete-btn" class="btn-danger btn-sm" style="display:none;" onclick="applyBulkDelete()" data-i18n="filter.delete">Delete</button>
+                <button class="btn-primary btn-sm" onclick="applyBulkAction()" data-i18n="common.apply">Apply</button>
+            </div>
+
+            <div id="task-list" class="table-container"></div>
+
+            <div id="create-task-form" class="form-card" style="display:none;">
+                <h3 data-i18n="form.createTask">Create Task</h3>
+                <form onsubmit="createTask(event)">
+                    <div class="form-group">
+                        <label data-i18n="filter.title">Title</label>
+                        <input type="text" id="task-title" required placeholder="e.g., Build the dashboard" / data-i18n-placeholder="ui.e_g_build_the_dashboard">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <textarea id="task-description" rows="3" data-i18n-placeholder="common.optionalDescription" placeholder="Optional description"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="task-department" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.priority">Priority</label>
+                            <select id="task-priority">
+                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
+                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
+                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
+                                <option value="LOW" data-i18n="priority.LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="filter.assigneeLabel">Assignee</label>
+                            <select id="task-assignee"><option value="" data-i18n="common.unassigned">Unassigned</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.dueDate">Due Date</label>
+                            <input type="datetime-local" id="task-due" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.estimate_minutes">Estimate (minutes)</label>
+                            <input type="number" id="task-estimate" placeholder="e.g., 240" / data-i18n-placeholder="ui.e_g_240">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.tags_comma_separated">Tags (comma separated)</label>
+                            <input type="text" id="task-tags" placeholder="e.g., frontend, urgent" / data-i18n-placeholder="ui.e_g_frontend_urgent">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.createTask">Create Task</button>
+                        <button type="button" class="btn-secondary" onclick="hideCreateTask()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="task-error" class="error" style="display:none;"></div>
+            </div>
+
+            <div id="edit-task-form" class="form-card" style="display:none;">
+                <h3 data-i18n="form.editTask">Edit Task</h3>
+                <form onsubmit="updateTask(event)">
+                    <input type="hidden" id="edit-task-id" />
+                    <input type="hidden" id="edit-task-archived" value="false" />
+                    <div class="form-group">
+                        <label data-i18n="filter.title">Title</label>
+                        <input type="text" id="edit-task-title" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <textarea id="edit-task-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="edit-task-department" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.priority">Priority</label>
+                            <select id="edit-task-priority">
+                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
+                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
+                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
+                                <option value="LOW" data-i18n="priority.LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="filter.assigneeLabel">Assignee</label>
+                            <select id="edit-task-assignee"><option value="" data-i18n="common.unassigned">Unassigned</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.dueDate">Due Date</label>
+                            <input type="datetime-local" id="edit-task-due" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.estimate_minutes">Estimate (minutes)</label>
+                        <input type="number" id="edit-task-estimate" placeholder="e.g., 240" / data-i18n-placeholder="ui.e_g_240">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.saveChanges">Save Changes</button>
+                        <button type="button" class="btn-secondary" onclick="hideEditTask()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="edit-task-error" class="error" style="display:none;"></div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TASK REQUESTS VIEW -->
+        <!-- ========================================== -->
+        <section id="requests-view" style="display:none;">
+            <div class="section-header">
+                <h2>📥 <span data-i18n="page.requests">Task Requests</span></h2>
+                <button class="btn-primary" onclick="toggleRequestForm()" data-i18n="ui.submit_request">+ Submit Request</button>
+            </div>
+
+            <div id="create-request-form" class="form-card" style="display:none;">
+                <h3 data-i18n="ui.submit_task_request">Submit Task Request</h3>
+                <form onsubmit="submitTaskRequest(event)">
+                    <div class="form-group">
+                        <label data-i18n="filter.title">Title</label>
+                        <input type="text" id="request-title" required placeholder="What do you need?" / data-i18n-placeholder="ui.what_do_you_need">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <textarea id="request-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="request-department" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.desired_by">Desired By</label>
+                            <input type="datetime-local" id="request-desired-by" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.business_justification">Business Justification</label>
+                        <textarea id="request-justification" rows="2"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.submit">Submit</button>
+                        <button type="button" class="btn-secondary" onclick="toggleRequestForm()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="request-error" class="error" style="display:none;"></div>
+            </div>
+
+            <div class="tab-bar">
+                <button class="tab-btn active" id="req-tab-mine" onclick="switchRequestTab('mine')" data-i18n="ui.my_requests">My Requests</button>
+                <button class="tab-btn" id="req-tab-triage" onclick="switchRequestTab('triage')" data-i18n="ui.triage_queue">Triage Queue</button>
+            </div>
+
+            <div id="triage-controls" class="controls" style="display:none;">
+                <select id="triage-dept-select" onchange="loadTriageQueue()"></select>
+            </div>
+
+            <div id="request-list" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SLA ADMIN VIEW -->
+        <!-- ========================================== -->
+        <section id="sla-view" style="display:none;">
+            <div class="section-header">
+                <h2>⏱️ <span data-i18n="page.sla">SLA Administration</span></h2>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-secondary" onclick="evaluateAllSla()" data-i18n="ui.evaluate_all">🔄 Evaluate All</button>
+                    <button class="btn-primary" onclick="toggleSlaPolicyForm()" data-i18n="ui.new_policy">+ New Policy</button>
+                </div>
+            </div>
+
+            <div id="sla-policy-form" class="form-card" style="display:none;">
+                <h3 data-i18n="ui.create_sla_policy">Create SLA Policy</h3>
+                <form onsubmit="createSlaPolicy(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="sla-dept" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.priority">Priority</label>
+                            <select id="sla-priority" required>
+                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
+                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
+                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
+                                <option value="LOW" data-i18n="priority.LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.response_target_minutes">Response Target (minutes)</label>
+                            <input type="number" id="sla-response" required min="1" />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.resolution_target_minutes">Resolution Target (minutes)</label>
+                            <input type="number" id="sla-resolution" required min="1" />
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                        <button type="button" class="btn-secondary" onclick="toggleSlaPolicyForm()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="sla-policy-list" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- DELEGATIONS VIEW -->
+        <!-- ========================================== -->
+        <section id="delegations-view" style="display:none;">
+            <div class="section-header">
+                <h2>🔄 <span data-i18n="page.delegations">Delegations</span></h2>
+                <button class="btn-primary" onclick="toggleCreateDelegationForm()" data-i18n="ui.new_delegation">+ New Delegation</button>
+            </div>
+
+            <div id="create-delegation-form" class="form-card" style="display:none;">
+                <h3 data-i18n="ui.create_delegation">Create Delegation</h3>
+                <form onsubmit="createDelegation(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.delegate">Delegate</label>
+                            <select id="delegation-delegate" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.scope">Scope</label>
+                            <select id="delegation-scope" required>
+                                <option value="ALL" data-i18n="ui.all">All</option>
+                                <option value="APPROVALS" data-i18n="ui.approvals">Approvals</option>
+                                <option value="TASKS" data-i18n="ui.tasks">Tasks</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.start_date">Start Date</label>
+                            <input type="datetime-local" id="delegation-start" required />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.end_date">End Date</label>
+                            <input type="datetime-local" id="delegation-end" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.reason">Reason</label>
+                        <input type="text" id="delegation-reason" placeholder="Optional reason" / data-i18n-placeholder="ui.optional_reason">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                        <button type="button" class="btn-secondary" onclick="toggleCreateDelegationForm()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="delegation-error" class="error" style="display:none;"></div>
+            </div>
+
+            <h3 class="subsection-title" data-i18n="ui.my_active_delegations">My Active Delegations</h3>
+            <div id="delegation-list-mine" class="table-container"></div>
+
+            <h3 class="subsection-title" data-i18n="ui.delegated_to_me">Delegated To Me</h3>
+            <div id="delegation-list-delegate" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TEMPLATES VIEW -->
+        <!-- ========================================== -->
+        <section id="templates-view" style="display:none;">
+            <div class="section-header">
+                <h2>📅 <span data-i18n="page.templates">Templates &amp; Recurrence</span></h2>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-secondary" onclick="generateOccurrences()" data-i18n="ui.generate_now">⚡ Generate Now</button>
+                    <button class="btn-secondary" onclick="materializeOccurrences()" data-i18n="ui.materialize_pending">📦 Materialize Pending</button>
+                    <button class="btn-primary" onclick="toggleCreateTemplateForm()" data-i18n="ui.new_template">+ New Template</button>
+                </div>
+            </div>
+
+            <div id="create-template-form" class="form-card" style="display:none;">
+                <h3 id="template-form-title" data-i18n="ui.create_template">Create Template</h3>
+                <form onsubmit="saveTemplate(event)">
+                    <input type="hidden" id="template-edit-id" value="" />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.name">Name</label>
+                            <input type="text" id="template-name" required placeholder="e.g., Weekly Standup" />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="template-department" required></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <input type="text" id="template-description" data-i18n-placeholder="common.optionalDescription" placeholder="Optional description" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.title_pattern">Title Pattern</label>
+                            <input type="text" id="template-title-pattern" required placeholder="e.g., Standup - {date}" />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.default_priority">Default Priority</label>
+                            <select id="template-priority">
+                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
+                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
+                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
+                                <option value="LOW" data-i18n="priority.LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.default_description">Default Description</label>
+                        <textarea id="template-default-description" rows="2" placeholder="Optional default task description"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.default_assignee">Default Assignee</label>
+                            <select id="template-assignee"><option value="" data-i18n="label.none">None</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.estimate_minutes">Estimate (minutes)</label>
+                            <input type="number" id="template-estimate" placeholder="e.g., 30" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.tags_comma_separated">Tags (comma separated)</label>
+                            <input type="text" id="template-tags" placeholder="e.g., recurring, standup" />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.checklist_items_comma_separated">Checklist Items (comma separated)</label>
+                            <input type="text" id="template-checklist" placeholder="e.g., Prep agenda, Send notes" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.default_acceptance_criteria_comma_separated">Default Acceptance Criteria (comma separated)</label>
+                        <input type="text" id="template-acceptance" placeholder="e.g., Reviewed by lead, Docs updated" />
+                    </div>
+
+                    <h4 class="form-subheading" data-i18n="ui.recurrence_rule_optional">Recurrence Rule (optional)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.frequency">Frequency</label>
+                            <select id="template-frequency" onchange="toggleRecurrenceFields()">
+                                <option value="" data-i18n="label.none">None</option>
+                                <option value="DAILY" data-i18n="ui.daily">Daily</option>
+                                <option value="WEEKLY" data-i18n="ui.weekly">Weekly</option>
+                                <option value="MONTHLY" data-i18n="ui.monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="template-days-group" style="display:none;">
+                            <label data-i18n="ui.days_of_week_0_sun_6_sat">Days of Week (0=Sun … 6=Sat)</label>
+                            <input type="text" id="template-days-of-week" placeholder="e.g., 1,3,5" />
+                        </div>
+                        <div class="form-group" id="template-day-month-group" style="display:none;">
+                            <label data-i18n="ui.day_of_month">Day of Month</label>
+                            <input type="number" id="template-day-of-month" min="1" max="31" placeholder="e.g., 15" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.rule_start_date">Rule Start Date</label>
+                            <input type="datetime-local" id="template-rule-start" />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.rule_end_date">Rule End Date</label>
+                            <input type="datetime-local" id="template-rule-end" />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.non_working_day_policy">Non-Working Day Policy</label>
+                            <select id="template-nwd-policy">
+                                <option value="NEXT_WORKING_DAY" data-i18n="ui.next_working_day">Next Working Day</option>
+                                <option value="PREVIOUS_WORKING_DAY" data-i18n="ui.previous_working_day">Previous Working Day</option>
+                                <option value="SKIP" data-i18n="ui.skip">Skip</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="ui.save_template">Save Template</button>
+                        <button type="button" class="btn-secondary" onclick="toggleCreateTemplateForm()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="template-error" class="error" style="display:none;"></div>
+            </div>
+
+            <div id="template-list" class="table-container"></div>
+
+            <h3 class="subsection-title" data-i18n="ui.recurrence_rules">Recurrence Rules</h3>
+            <div id="recurrence-rules-list" class="table-container"></div>
+
+            <h3 class="subsection-title" data-i18n="ui.recent_occurrences">Recent Occurrences</h3>
+            <div id="occurrences-list" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- LEAVE VIEW (Part C) -->
+        <!-- ========================================== -->
+        <section id="leave-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.leave">Leave &amp; Absence</h2>
+                <button class="btn-primary" onclick="toggleLeaveRequestForm()" data-i18n="ui.request_leave">+ Request Leave</button>
+            </div>
+
+            <div id="leave-request-form" class="form-card" style="display:none;">
+                <h3 data-i18n="ui.request_leave_418">Request Leave</h3>
+                <form onsubmit="submitLeaveRequest(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.type">Type</label>
+                            <select id="leave-type" required>
+                                <option value="annual" data-i18n="ui.annual">Annual</option>
+                                <option value="sick" data-i18n="ui.sick">Sick</option>
+                                <option value="unpaid" data-i18n="ui.unpaid">Unpaid</option>
+                                <option value="training" data-i18n="ui.training">Training</option>
+                                <option value="other" data-i18n="ui.other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" id="leave-partial" /> Partial day</label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.start">Start</label>
+                            <input type="date" id="leave-start" required />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.end">End</label>
+                            <input type="date" id="leave-end" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.note">Note</label>
+                        <input type="text" id="leave-note" placeholder="Optional" />
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.submit">Submit</button>
+                        <button type="button" class="btn-secondary" onclick="toggleLeaveRequestForm()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <h3 class="subsection-title" data-i18n="ui.pending_approvals">Pending Approvals</h3>
+            <div id="leave-pending-list" class="table-container"></div>
+
+            <h3 class="subsection-title" data-i18n="ui.leave_records_1">Leave Records</h3>
+            <div id="leave-list" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- CAPACITY VIEW (Part C) -->
+        <!-- ========================================== -->
+        <section id="capacity-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.capacity">Capacity &amp; Availability</h2>
+            </div>
+            <div class="form-card">
+                <form onsubmit="loadCapacity(event)" class="form-row" style="align-items:flex-end;">
+                    <div class="form-group">
+                        <label data-i18n="label.department">Department</label>
+                        <select id="capacity-department" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.from">From</label>
+                        <input type="date" id="capacity-from" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.to">To</label>
+                        <input type="date" id="capacity-to" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.overhead">Overhead %</label>
+                        <input type="number" id="capacity-overhead" value="20" min="0" max="90" />
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.load">Load</button>
+                    </div>
+                </form>
+            </div>
+            <h3 class="subsection-title" data-i18n="ui.availability">Availability</h3>
+            <div id="capacity-availability" class="table-container"></div>
+            <h3 class="subsection-title" data-i18n="ui.workload">Workload</h3>
+            <div id="capacity-workload" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TIMESHEETS VIEW (Part C) -->
+        <!-- ========================================== -->
+        <section id="timesheets-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.timesheets">Timesheets</h2>
+                <div class="toolbar">
+                    <div class="toolbar-field">
+                        <label for="timesheet-week" data-i18n="ui.week_start">Week start</label>
+                        <input type="date" id="timesheet-week" />
+                    </div>
+                    <button class="btn-secondary" onclick="loadTimesheetWeek()" data-i18n="ui.load_week">Load week</button>
+                    <button class="btn-primary" onclick="submitTimesheetWeek()" data-i18n="ui.submit_week">Submit week</button>
+                </div>
+            </div>
+            <div id="timesheet-week-summary"></div>
+            <div id="timesheet-week-detail" class="table-container"></div>
+            <h3 class="subsection-title" data-i18n="ui.my_timesheets">My Timesheets</h3>
+            <div id="timesheet-mine" class="table-container"></div>
+            <h3 class="subsection-title" data-i18n="ui.pending_review">Pending Review</h3>
+            <div id="timesheet-pending" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ANALYTICS VIEW (Part D) -->
+        <!-- ========================================== -->
+        <section id="analytics-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.analytics">Analytics &amp; Reporting</h2>
+                <span id="analytics-asof" class="muted"></span>
+            </div>
+            <div class="form-row" style="gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                <button type="button" class="btn-secondary" id="analytics-tab-me" onclick="showAnalyticsTab('me')" data-i18n="ui.my_work">My Work</button>
+                <button type="button" class="btn-secondary" id="analytics-tab-dept" onclick="showAnalyticsTab('department')" style="display:none;" data-i18n="ui.department">Department</button>
+                <button type="button" class="btn-secondary" id="analytics-tab-flow" onclick="showAnalyticsTab('flow')" style="display:none;" data-i18n="ui.flow">Flow</button>
+                <button type="button" class="btn-secondary" id="analytics-tab-org" onclick="showAnalyticsTab('organisation')" style="display:none;" data-i18n="ui.organisation">Organisation</button>
+            </div>
+            <form onsubmit="loadAnalytics(event)" class="form-row" style="align-items:flex-end;flex-wrap:wrap;gap:12px;">
+                <div class="form-group" id="analytics-dept-group">
+                    <label data-i18n="label.department">Department</label>
+                    <select id="analytics-dept"></select>
+                </div>
+                <div class="form-group" id="analytics-other-dept-group" style="display:none;">
+                    <label data-i18n="ui.compare_department">Compare department</label>
+                    <select id="analytics-other-dept"></select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="ui.from">From</label>
+                    <input type="date" id="analytics-from" required />
+                </div>
+                <div class="form-group">
+                    <label data-i18n="ui.to">To</label>
+                    <input type="date" id="analytics-to" required />
+                </div>
+                <div class="form-group">
+                    <label data-i18n="ui.duration_basis">Duration basis</label>
+                    <select id="analytics-basis">
+                        <option value="working_minutes" data-i18n="ui.working_minutes">Working minutes</option>
+                        <option value="elapsed_minutes" data-i18n="ui.elapsed_minutes">Elapsed minutes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="ui.granularity">Granularity</label>
+                    <select id="analytics-granularity">
+                        <option value="day" data-i18n="ui.day">Day</option>
+                        <option value="week" data-i18n="ui.week">Week</option>
+                        <option value="month" data-i18n="ui.month">Month</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="ui.overhead">Overhead %</label>
+                    <input type="number" id="analytics-overhead" value="20" min="0" max="90" />
+                </div>
+                <button type="submit" class="btn-primary" data-i18n="common.load">Load</button>
+                <button type="button" class="btn-secondary" onclick="exportAnalytics()" data-i18n="ui.export_csv">Export CSV</button>
+                <button type="button" class="btn-secondary" id="analytics-rebuild-btn" onclick="rebuildAnalytics()" style="display:none;" data-i18n="ui.rebuild_range">Rebuild range</button>
+            </form>
+            <p id="analytics-status" class="muted"></p>
+
+            <div id="analytics-panel-me">
+                <h3 class="subsection-title" data-i18n="ui.my_work">My Work</h3>
+                <div id="analytics-me" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.assigned_active_tasks">Assigned active tasks</h3>
+                <div id="analytics-me-tasks" class="table-container"></div>
+            </div>
+            <div id="analytics-panel-department" style="display:none;">
+                <h3 class="subsection-title" data-i18n="ui.wip_aging">WIP &amp; aging</h3>
+                <div id="analytics-wip" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.throughput_arrivals">Throughput / arrivals</h3>
+                <div id="analytics-throughput" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.sla">SLA</h3>
+                <div id="analytics-sla"></div>
+                <div id="analytics-sla-series" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.quality">Quality</h3>
+                <div id="analytics-quality" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.workload_vs_capacity">Workload vs capacity</h3>
+                <div id="analytics-workload" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.data_quality">Data quality</h3>
+                <div id="analytics-dq" class="table-container"></div>
+            </div>
+            <div id="analytics-panel-flow" style="display:none;">
+                <h3 class="subsection-title" data-i18n="ui.flow_metrics">Flow metrics</h3>
+                <div id="analytics-flow" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.flow_series">Flow series</h3>
+                <div id="analytics-flow-series" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.time_in_status">Time in status</h3>
+                <div id="analytics-tis" class="table-container"></div>
+            </div>
+            <div id="analytics-panel-organisation" style="display:none;">
+                <h3 class="subsection-title" data-i18n="ui.organisation_overview">Organisation overview</h3>
+                <div id="analytics-org" class="table-container"></div>
+                <h3 class="subsection-title" data-i18n="ui.period_department_compare">Period / department compare</h3>
+                <div id="analytics-compare" class="table-container"></div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- CALENDARS VIEW (Part C, Admin) -->
+        <!-- ========================================== -->
+        <section id="calendars-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.calendars">Working Calendars</h2>
+                <button class="btn-primary" onclick="toggleCalendarForm()" data-i18n="ui.new_calendar">+ New Calendar</button>
+            </div>
+            <div id="calendar-create-form" class="form-card" style="display:none;">
+                <h3 data-i18n="ui.create_calendar">Create Calendar</h3>
+                <form onsubmit="createCalendar(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.name">Name</label>
+                            <input type="text" id="cal-name" required />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.timezone">Timezone</label>
+                            <input type="text" id="cal-tz" value="UTC" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.start_hour">Start hour</label>
+                            <input type="number" id="cal-start" value="9" min="0" max="23" />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.end_hour">End hour</label>
+                            <input type="number" id="cal-end" value="17" min="1" max="24" />
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" id="cal-default" /> Org default</label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                        <button type="button" class="btn-secondary" onclick="toggleCalendarForm()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            <div id="calendars-list" class="table-container"></div>
+            <h3 class="subsection-title" data-i18n="ui.add_holiday">Add Holiday</h3>
+            <div class="form-card">
+                <form onsubmit="addCalendarHoliday(event)" class="form-row" style="align-items:flex-end;">
+                    <div class="form-group">
+                        <label data-i18n="ui.calendar_id">Calendar ID</label>
+                        <input type="number" id="holiday-cal-id" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.date">Date</label>
+                        <input type="date" id="holiday-date" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.name">Name</label>
+                        <input type="text" id="holiday-name" required />
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="holiday-recur" /> Recurs annually</label>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="common.add">Add</button>
+                </form>
+            </div>
+            <h3 class="subsection-title" data-i18n="ui.department_calendar_override">Department Calendar Override</h3>
+            <div class="form-card">
+                <form onsubmit="setDepartmentCalendar(event)" class="form-row" style="align-items:flex-end;">
+                    <div class="form-group">
+                        <label data-i18n="label.department">Department</label>
+                        <select id="cal-dept" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.calendar_id_blank_org_default">Calendar ID (blank = org default)</label>
+                        <input type="number" id="cal-dept-cal-id" />
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="common.save">Save</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- DEPARTMENT DETAIL VIEW -->
+        <!-- ========================================== -->
+        <section id="department-detail" style="display:none;">
+            <button class="btn-secondary" onclick="backToDepartments()" data-i18n="ui.back_to_departments">← Back to Departments</button>
+            <div style="margin-top:16px;">
+                <h2 id="dept-detail-name"></h2>
+                <p id="dept-detail-location" style="color:#4a5568;"></p>
+                <p id="dept-detail-manager" style="color:#4a5568;margin-top:4px;"></p>
+            </div>
+            <div id="dept-detail-employees" class="table-container" style="margin-top:16px;"></div>
+
+            <h3 class="subsection-title" data-i18n="ui.department_triagers">Department Triagers</h3>
+            <div id="dept-triagers-panel" class="detail-panel"></div>
+
+            <h3 class="subsection-title" data-i18n="ui.default_definition_of_done_1">Default Definition of Done</h3>
+            <div id="dept-default-criteria-panel" class="detail-panel"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PERFORMANCE VIEW (Part E) -->
+        <!-- ========================================== -->
+        <section id="performance-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.performance">Performance</h2>
+                <span id="pe-status" class="muted"></span>
+            </div>
+            <div id="pe-admin-block" class="form-card" style="display:none;">
+                <p>Technical Admin/Auditor cannot access performance data (PM-38). Use an HR_ADMIN, Manager, or Member account.</p>
+            </div>
+            <div id="pe-main">
+                <div class="form-row" style="gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <button type="button" class="btn-secondary" id="pe-tab-mine" onclick="showPeTab('mine')" data-i18n="ui.my_reviews">My reviews</button>
+                    <button type="button" class="btn-secondary" id="pe-tab-assess" onclick="showPeTab('assess')" data-i18n="ui.assess">Assess</button>
+                    <button type="button" class="btn-secondary" id="pe-tab-cycle" onclick="showPeTab('cycle')" data-i18n="ui.cycle_hr">Cycle (HR)</button>
+                    <button type="button" class="btn-secondary" id="pe-tab-calibration" onclick="showPeTab('calibration')" data-i18n="ui.calibration">Calibration</button>
+                    <button type="button" class="btn-secondary" id="pe-tab-goals" onclick="showPeTab('goals')" data-i18n="ui.goals">Goals</button>
+                    <button type="button" class="btn-secondary" id="pe-tab-competencies" onclick="showPeTab('competencies')" data-i18n="ui.competencies">Competencies</button>
+                </div>
+
+                <div id="pe-panel-mine">
+                    <button class="btn-primary" onclick="peLoadMine()" data-i18n="ui.load_my_reviews">Load my reviews</button>
+                    <pre id="pe-mine-out" class="detail-panel" style="margin-top:12px;white-space:pre-wrap;"></pre>
+                </div>
+
+                <div id="pe-panel-assess" style="display:none;">
+                    <div class="panel-lookup">
+                        <div class="toolbar-field">
+                            <label for="pe-review-id" data-i18n="ui.review_id">Review id</label>
+                            <input id="pe-review-id" type="number" />
+                        </div>
+                        <button class="btn-primary" onclick="peLoadReview()" data-i18n="ui.load_review">Load review</button>
+                        <p class="panel-lookup-hint" data-i18n="ui.load_a_review_to_work_on_then_use_the_sections_below">Load a review to work on, then use the sections below.</p>
+                    </div>
+
+                    <div class="panel-grid">
+                        <section class="panel-card panel-card-wide">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.self_assessment">Self assessment</h4>
+                                <p>Rate your own performance. At least 200 characters of justification are required before you can submit.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-self-rating" data-i18n="ui.rating_1_5">Rating (1–5)</label>
+                                    <input id="pe-self-rating" type="number" min="1" max="5" value="3" />
+                                </div>
+                                <div class="form-group wide">
+                                    <label for="pe-self-just" data-i18n="ui.justification">Justification</label>
+                                    <textarea id="pe-self-just" rows="3" placeholder="What did you deliver, and what was the impact?"></textarea>
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peSaveSelf(false)" data-i18n="ui.save_draft">Save draft</button>
+                                <button class="btn-primary" onclick="peSaveSelf(true)" data-i18n="ui.submit_self_assessment">Submit self assessment</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card panel-card-wide">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.manager_assessment">Manager assessment</h4>
+                                <p data-i18n="ui.manager_rating_and_rationale_for_this_review">Manager rating and rationale for this review.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-mgr-rating" data-i18n="ui.rating_1_5">Rating (1–5)</label>
+                                    <input id="pe-mgr-rating" type="number" min="1" max="5" value="3" />
+                                </div>
+                                <div class="form-group wide">
+                                    <label for="pe-mgr-just" data-i18n="ui.justification">Justification</label>
+                                    <textarea id="pe-mgr-just" rows="3" placeholder="Evidence behind the rating."></textarea>
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peSaveManager(false)" data-i18n="ui.save_draft">Save draft</button>
+                                <button class="btn-primary" onclick="peSaveManager(true)" data-i18n="ui.submit_manager_assessment">Submit manager assessment</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.evidence">Evidence</h4>
+                                <p data-i18n="ui.attach_a_supporting_note_to_the_review_record">Attach a supporting note to the review record.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group wide">
+                                    <label for="pe-evidence-note" data-i18n="ui.evidence_note">Evidence note</label>
+                                    <input id="pe-evidence-note" type="text" placeholder="Link or short description" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peAttachEvidence()" data-i18n="ui.attach_evidence">Attach evidence</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.employee_response">Employee response</h4>
+                                <p data-i18n="ui.reply_to_the_assessment_once_it_has_been_shared_with_you">Reply to the assessment once it has been shared with you.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group wide">
+                                    <label for="pe-response" data-i18n="ui.response_1">Response</label>
+                                    <textarea id="pe-response" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peRespond()" data-i18n="ui.send_response">Send response</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.appeal">Appeal</h4>
+                                <p data-i18n="ui.formally_contest_the_outcome_of_this_review">Formally contest the outcome of this review.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group wide">
+                                    <label for="pe-appeal" data-i18n="ui.grounds_for_appeal">Grounds for appeal</label>
+                                    <input id="pe-appeal" type="text" placeholder="Why the outcome should be reconsidered" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peAppeal()" data-i18n="ui.raise_appeal">Raise appeal</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.peer_nominations">Peer nominations</h4>
+                                <p data-i18n="ui.nominate_colleagues_to_give_peer_feedback_on_this_review">Nominate colleagues to give peer feedback on this review.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group wide">
+                                    <label for="pe-peer-ids" data-i18n="ui.nominee_employee_ids">Nominee employee ids</label>
+                                    <input id="pe-peer-ids" type="text" placeholder="Comma separated, e.g. 4, 7, 12" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peNominatePeers()" data-i18n="ui.nominate_peers">Nominate peers</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card panel-card-wide">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.peer_feedback">Peer feedback</h4>
+                                <p data-i18n="ui.submit_feedback_using_the_token_issued_with_a_peer_nomin">Submit feedback using the token issued with a peer nomination.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-peer-token" data-i18n="ui.peer_token">Peer token</label>
+                                    <input id="pe-peer-token" type="text" />
+                                </div>
+                                <div class="form-group narrow">
+                                    <label for="pe-peer-rating" data-i18n="ui.rating_1_5">Rating (1–5)</label>
+                                    <input id="pe-peer-rating" type="number" min="1" max="5" value="3" />
+                                </div>
+                                <div class="form-group wide">
+                                    <label for="pe-peer-just" data-i18n="ui.justification">Justification</label>
+                                    <textarea id="pe-peer-just" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peSubmitPeer()" data-i18n="ui.submit_peer_feedback">Submit peer feedback</button>
+                            </div>
+                        </section>
+                    </div>
+
+                    <pre id="pe-review-out" class="detail-panel output-panel"></pre>
+                </div>
+
+                <div id="pe-panel-cycle" style="display:none;">
+                    <div id="pe-hr-panel" class="panel-grid">
+                        <section class="panel-card panel-card-wide">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.create_review_cycle">Create review cycle</h4>
+                                <p data-i18n="ui.open_a_new_performance_cycle_for_one_or_more_departments">Open a new performance cycle for one or more departments.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group wide">
+                                    <label for="pe-cycle-name" data-i18n="ui.name">Name</label>
+                                    <input id="pe-cycle-name" type="text" value="H2 2026" />
+                                </div>
+                                <div class="form-group wide">
+                                    <label for="pe-cycle-depts" data-i18n="ui.department_ids">Department ids</label>
+                                    <input id="pe-cycle-depts" type="text" value="1" placeholder="Comma separated, e.g. 1, 3" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="pe-peer-mode" data-i18n="ui.peer_mode">Peer mode</label>
+                                    <select id="pe-peer-mode">
+                                        <option value="AGGREGATED" data-i18n="ui.aggregated">Aggregated</option>
+                                        <option value="ATTRIBUTED" data-i18n="ui.attributed">Attributed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pe-cycle-from" data-i18n="ui.from">From</label>
+                                    <input id="pe-cycle-from" type="date" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="pe-cycle-to" data-i18n="ui.to">To</label>
+                                    <input id="pe-cycle-to" type="date" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="pe-cycle-cutoff" data-i18n="ui.join_cut_off">Join cut-off</label>
+                                    <input id="pe-cycle-cutoff" type="date" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-primary" onclick="peCreateCycle()" data-i18n="ui.create_cycle">Create cycle</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card panel-card-wide">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.cycle_progress">Cycle progress</h4>
+                                <p data-i18n="ui.move_an_existing_cycle_to_its_next_stage_or_review_how_f">Move an existing cycle to its next stage, or review how far it has got.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-cycle-id" data-i18n="ui.cycle_id">Cycle id</label>
+                                    <input id="pe-cycle-id" type="number" />
+                                </div>
+                                <div class="form-group wide">
+                                    <label for="pe-stage-reason" data-i18n="ui.stage_reason">Stage reason</label>
+                                    <input id="pe-stage-reason" type="text" placeholder="Why the cycle is advancing" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peLoadProgress()" data-i18n="ui.view_progress">View progress</button>
+                                <button class="btn-primary" onclick="peAdvanceStage()" data-i18n="ui.advance_stage">Advance stage</button>
+                            </div>
+                        </section>
+                    </div>
+                    <pre id="pe-cycle-out" class="detail-panel output-panel"></pre>
+                </div>
+
+                <div id="pe-panel-calibration" style="display:none;">
+                    <div id="pe-cal-panel" class="panel-grid">
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.calibration_session">Calibration session</h4>
+                                <p data-i18n="ui.load_the_calibration_view_for_a_cycle_to_compare_ratings">Load the calibration view for a cycle to compare ratings across the group.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-cal-cycle-id" data-i18n="ui.cycle_id">Cycle id</label>
+                                    <input id="pe-cal-cycle-id" type="number" placeholder="Cycle" / data-i18n-placeholder="ui.cycle">
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-primary" onclick="peLoadCalibration()" data-i18n="ui.load_calibration">Load calibration</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.adjust_a_rating">Adjust a rating</h4>
+                                <p data-i18n="ui.override_the_overall_rating_on_a_single_review_a_reason_">Override the overall rating on a single review. A reason is recorded on the audit trail.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-cal-review-id" data-i18n="ui.review_id">Review id</label>
+                                    <input id="pe-cal-review-id" type="number" placeholder="Review" />
+                                </div>
+                                <div class="form-group narrow">
+                                    <label for="pe-cal-rating" data-i18n="ui.new_rating_1_5">New rating (1–5)</label>
+                                    <input id="pe-cal-rating" type="number" min="1" max="5" value="3" />
+                                </div>
+                                <div class="form-group wide">
+                                    <label for="pe-cal-reason" data-i18n="ui.reason">Reason</label>
+                                    <input id="pe-cal-reason" type="text" placeholder="Why the rating is being changed" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peCalibrate()" data-i18n="ui.apply_calibrated_rating">Apply calibrated rating</button>
+                            </div>
+                        </section>
+                    </div>
+                    <pre id="pe-cal-out" class="detail-panel output-panel"></pre>
+                </div>
+
+                <div id="pe-panel-goals" style="display:none;">
+                    <div class="panel-grid">
+                        <section class="panel-card panel-card-wide">
+                            <div class="panel-card-header">
+                                <h4 data-i18n="ui.create_goal">Create goal</h4>
+                                <p>Set an objective for an employee, with the measure and target used to track it.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group wide">
+                                    <label for="pe-goal-title" data-i18n="ui.title">Title</label>
+                                    <input id="pe-goal-title" type="text" placeholder="What should be achieved" />
+                                </div>
+                                <div class="form-group narrow">
+                                    <label for="pe-goal-owner">Owner employee id</label>
+                                    <input id="pe-goal-owner" type="number" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group wide">
+                                    <label for="pe-goal-desc" data-i18n="ui.description">Description</label>
+                                    <input id="pe-goal-desc" type="text" placeholder="Context and success criteria" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="pe-goal-measure">Measure</label>
+                                    <input id="pe-goal-measure" type="text" placeholder="e.g. tickets closed" />
+                                </div>
+                                <div class="form-group narrow">
+                                    <label for="pe-goal-target" data-i18n="ui.target">Target</label>
+                                    <input id="pe-goal-target" type="number" value="100" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pe-goal-from" data-i18n="ui.from">From</label>
+                                    <input id="pe-goal-from" type="date" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="pe-goal-to" data-i18n="ui.to">To</label>
+                                    <input id="pe-goal-to" type="date" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-primary" onclick="peCreateGoal()" data-i18n="ui.create_goal">Create goal</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4>Track a goal</h4>
+                                <p>Load a goal to acknowledge it or record how far along it is.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-goal-id">Goal id</label>
+                                    <input id="pe-goal-id" type="number" />
+                                </div>
+                                <div class="form-group narrow">
+                                    <label for="pe-goal-current">Current value</label>
+                                    <input id="pe-goal-current" type="number" value="0" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peLoadGoal()" data-i18n="ui.load_goal">Load goal</button>
+                                <button class="btn-secondary" onclick="peAckGoal()" data-i18n="ui.acknowledge">Acknowledge</button>
+                                <button class="btn-primary" onclick="peGoalProgress()" data-i18n="ui.update_progress">Update progress</button>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-card-header">
+                                <h4>Feedback note</h4>
+                                <p>Leave continuous feedback for a colleague outside the review cycle.</p>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group narrow">
+                                    <label for="pe-fb-to">To employee id</label>
+                                    <input id="pe-fb-to" type="number" />
+                                </div>
+                                <div class="form-group wide">
+                                    <label for="pe-fb-body" data-i18n="ui.note">Note</label>
+                                    <input id="pe-fb-body" type="text" />
+                                </div>
+                            </div>
+                            <div class="panel-card-actions">
+                                <button class="btn-secondary" onclick="peFeedbackNote()" data-i18n="ui.add_feedback_note">Add feedback note</button>
+                            </div>
+                        </section>
+                    </div>
+                    <pre id="pe-goal-out" class="detail-panel output-panel"></pre>
+                </div>
+
+                <div id="pe-panel-competencies" style="display:none;">
+                    <button class="btn-primary" onclick="peLoadCompetencies()" data-i18n="ui.load_competency_library">Load competency library</button>
+                    <pre id="pe-comp-out" class="detail-panel" style="margin-top:12px;white-space:pre-wrap;"></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PROFILE VIEW -->
+        <!-- ========================================== -->
+        <section id="profile-view" style="display:none;">
+            <div class="section-header">
+                <div>
+                    <h2 data-i18n="page.profile">Profile</h2>
+                    <p class="section-lead" data-i18n="profile.lead">Your account details, appearance preferences, and sign-out.</p>
+                </div>
+            </div>
+
+            <div class="profile-layout">
+                <section class="profile-card">
+                    <div class="profile-hero">
+                        <div class="profile-avatar" id="profile-avatar">A</div>
+                        <div class="profile-hero-text">
+                            <h3 id="profile-username" data-i18n="common.user">User</h3>
+                            <span class="profile-role-badge" id="profile-role" data-i18n="ui.member">Member</span>
+                        </div>
+                    </div>
+
+                    <dl class="profile-details">
+                        <div>
+                            <dt data-i18n="label.username">Username</dt>
+                            <dd id="profile-username-detail">—</dd>
+                        </div>
+                        <div>
+                            <dt data-i18n="label.role">Role</dt>
+                            <dd id="profile-role-detail">—</dd>
+                        </div>
+                        <div>
+                            <dt data-i18n="label.sessionExpires">Session expires</dt>
+                            <dd id="profile-expires">—</dd>
+                        </div>
+                    </dl>
+
+                    <div class="profile-actions">
+                        <button type="button" class="btn-secondary" onclick="showSecurity()" data-i18n="common.securitySessions">Security &amp; sessions</button>
+                        <button type="button" class="btn-danger" onclick="logout()" data-i18n="common.logout">Logout</button>
+                    </div>
+                </section>
+
+                <section class="profile-card">
+                    <h4 class="profile-card-title" data-i18n="profile.appearance">Appearance</h4>
+                    <p class="muted" data-i18n="profile.appearanceHint">Choose light or dark for the app interface. Your preference is saved on this device.</p>
+                    <div class="theme-toggle-row">
+                        <div>
+                            <strong id="theme-label" data-i18n="ui.light_mode">Light mode</strong>
+                            <p class="muted" id="theme-hint" data-i18n="ui.bright_canvas_for_daytime_use">Bright canvas for daytime use</p>
+                        </div>
+                        <label class="theme-switch" for="theme-toggle">
+                            <input type="checkbox" id="theme-toggle" onchange="toggleTheme(this.checked)" data-i18n-aria="profile.toggleTheme" />
+                            <span class="theme-switch-track" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="profile-card">
+                    <h4 class="profile-card-title" data-i18n="profile.language">Language</h4>
+                    <p class="muted" data-i18n="profile.languageHint">Choose English or Arabic for the whole app. Layout switches to right-to-left for Arabic.</p>
+                    <div class="lang-toggle-row" role="group" aria-label="Language">
+                        <button type="button" class="lang-option" data-lang-option="en" onclick="setLanguage('en')" data-i18n="profile.langEn">English</button>
+                        <button type="button" class="lang-option" data-lang-option="ar" onclick="setLanguage('ar')" data-i18n="profile.langAr">العربية</button>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SECURITY VIEW (Part H) -->
+        <!-- ========================================== -->
+        <section id="security-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.security">Security</h2>
+                <span id="sec-status" class="muted"></span>
+            </div>
+            <p class="muted" data-i18n="ui.active_sessions_sp_2_revoking_a_session_takes_ef">Active sessions (SP-2). Revoking a session takes effect on the next request. Changing your password signs out every session (SP-3).</p>
+            <h3 class="subsection-title" data-i18n="ui.change_password">Change password</h3>
+            <div class="form-card">
+                <form onsubmit="changePassword(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.current_password">Current password</label>
+                            <input type="password" id="sec-current-password" required />
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.new_password_min_8">New password (min 8)</label>
+                            <input type="password" id="sec-new-password" minlength="8" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="ui.change_password">Change password</button>
+                </form>
+            </div>
+            <h3 class="subsection-title" data-i18n="ui.sessions">Sessions</h3>
+            <div id="sec-sessions" class="table-container"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- AUDIT VIEW (Admin + Auditor) -->
+        <!-- ========================================== -->
+        <section id="audit-view" style="display:none;">
+            <div class="section-header">
+                <div>
+                    <h2 data-i18n="page.audit">Audit</h2>
+                    <p class="section-lead" data-i18n="ui.security_audit_trail_hash_chain_verification_and">Security audit trail, hash-chain verification, and audit-log exports.</p>
+                </div>
+                <div class="section-header-actions">
+                    <span id="audit-status" class="status-chip" hidden></span>
+                    <button type="button" class="btn-secondary" onclick="loadAuditEvents()" data-i18n="ui.refresh_events">Refresh events</button>
+                </div>
+            </div>
+
+            <div class="panel-grid">
+                <section class="panel-card panel-card-wide">
+                    <div class="panel-card-header">
+                        <h4 data-i18n="ui.event_log">Event log</h4>
+                        <p data-i18n="ui.filter_and_page_through_audit_events_auditors_se">Filter and page through audit events. Auditors see change payloads; other roles may have fields redacted by the API.</p>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="audit-event-type" data-i18n="ui.event_type">Event type</label>
+                            <input id="audit-event-type" type="text" placeholder="e.g. LOGIN_SUCCESS" />
+                        </div>
+                        <div class="form-group narrow">
+                            <label for="audit-outcome" data-i18n="ui.outcome">Outcome</label>
+                            <select id="audit-outcome">
+                                <option value="" data-i18n="ui.any">Any</option>
+                                <option value="SUCCESS" data-i18n="ui.success">SUCCESS</option>
+                                <option value="DENIED" data-i18n="ui.denied">DENIED</option>
+                            </select>
+                        </div>
+                        <div class="form-group narrow">
+                            <label for="audit-actor-id" data-i18n="ui.actor_id">Actor id</label>
+                            <input id="audit-actor-id" type="number" />
+                        </div>
+                        <div class="form-group">
+                            <label for="audit-target-type" data-i18n="ui.target_type">Target type</label>
+                            <input id="audit-target-type" type="text" placeholder="e.g. Task" />
+                        </div>
+                        <div class="form-group">
+                            <label for="audit-target-id" data-i18n="ui.target_id">Target id</label>
+                            <input id="audit-target-id" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="audit-from" data-i18n="ui.from">From</label>
+                            <input id="audit-from" type="datetime-local" />
+                        </div>
+                        <div class="form-group">
+                            <label for="audit-to" data-i18n="ui.to">To</label>
+                            <input id="audit-to" type="datetime-local" />
+                        </div>
+                        <div class="form-group">
+                            <label for="audit-source-ip">Source IP</label>
+                            <input id="audit-source-ip" type="text" />
+                        </div>
+                    </div>
+                    <div class="panel-card-actions">
+                        <button type="button" class="btn-secondary" onclick="resetAuditFilters()" data-i18n="ui.clear_filters">Clear filters</button>
+                        <button type="button" class="btn-primary" onclick="loadAuditEvents()" data-i18n="common.search">Search</button>
+                    </div>
+                    <p id="audit-count" class="muted" style="margin:12px 0 8px;"></p>
+                    <div id="audit-events"></div>
+                    <div class="panel-card-actions" style="justify-content:flex-start;">
+                        <button type="button" class="btn-secondary" id="audit-load-more" style="display:none;" onclick="loadMoreAuditEvents()" data-i18n="ui.load_more">Load more</button>
+                    </div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-card-header">
+                        <h4 data-i18n="ui.chain_verification">Chain verification</h4>
+                        <p>Recompute hashes for events in a date range and report the first break, if any.</p>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="audit-verify-from" data-i18n="ui.from">From</label>
+                            <input id="audit-verify-from" type="datetime-local" />
+                        </div>
+                        <div class="form-group">
+                            <label for="audit-verify-to" data-i18n="ui.to">To</label>
+                            <input id="audit-verify-to" type="datetime-local" />
+                        </div>
+                    </div>
+                    <div id="audit-verify-result"></div>
+                    <div class="panel-card-actions">
+                        <button type="button" class="btn-primary" onclick="verifyAuditChain()" data-i18n="ui.verify_chain">Verify chain</button>
+                    </div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-card-header">
+                        <h4>Audit export</h4>
+                        <p>Queue a filtered audit-log export. Uses the same filters as the event log above. The worker writes a JSON file you can download when ready.</p>
+                    </div>
+                    <div id="audit-export-status"></div>
+                    <div class="panel-card-actions">
+                        <button type="button" class="btn-secondary" id="audit-export-download" style="display:none;" onclick="downloadQueuedAuditExport()" data-i18n="ui.download_export">Download export</button>
+                        <button type="button" class="btn-primary" onclick="queueAuditExport()" data-i18n="ui.queue_export">Queue export</button>
+                    </div>
+                </section>
+
+                <section class="panel-card panel-card-wide" id="audit-holds-panel" style="display:none;">
+                    <div class="panel-card-header">
+                        <h4 data-i18n="ui.legal_holds">Legal holds</h4>
+                        <p>Read-only list of active holds. Placing or lifting a hold is an HR Admin action and is not available here.</p>
+                    </div>
+                    <div id="audit-holds"></div>
+                </section>
+            </div>
+
+            <div id="audit-event-detail" class="panel-card panel-card-wide" style="display:none;margin-top:16px;">
+                <div class="panel-card-header">
+                    <h4>Event detail</h4>
+                    <p id="audit-event-detail-title"></p>
+                </div>
+                <pre id="audit-event-detail-body" class="output-panel" style="display:block;max-height:480px;"></pre>
+                <div class="panel-card-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAuditEventDetail()" data-i18n="common.close">Close</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- OPERATIONS VIEW (Part G, Admin) -->
+        <!-- ========================================== -->
+        <section id="operations-view" style="display:none;">
+            <div class="section-header">
+                <div>
+                    <h2 data-i18n="page.operations">Operations</h2>
+                    <p class="section-lead" data-i18n="ui.health_of_this_instance_the_background_job_queue">Health of this instance, the background job queue, and anything that needs attention.</p>
+                </div>
+                <div class="section-header-actions">
+                    <span id="pg-status" class="status-chip" hidden></span>
+                    <button type="button" class="btn-secondary" onclick="refreshOperations()" data-i18n="ui.refresh">Refresh</button>
+                </div>
+            </div>
+
+            <div id="pg-metrics" class="ops-metrics">
+                <div class="ops-metric"><span class="ops-metric-label" data-i18n="ui.job_queue">Job queue</span><p class="empty-state" data-i18n="common.loading">Loading…</p></div>
+                <div class="ops-metric"><span class="ops-metric-label" data-i18n="ui.http">HTTP</span><p class="empty-state" data-i18n="common.loading">Loading…</p></div>
+                <div class="ops-metric"><span class="ops-metric-label" data-i18n="ui.rollups">Rollups</span><p class="empty-state" data-i18n="common.loading">Loading…</p></div>
+                <div class="ops-metric"><span class="ops-metric-label" data-i18n="ui.audit_chain">Audit chain</span><p class="empty-state" data-i18n="common.loading">Loading…</p></div>
+            </div>
+
+            <div class="panel-grid">
+                <section class="panel-card panel-card-wide">
+                    <div class="panel-card-header">
+                        <h4 data-i18n="ui.readiness">Readiness</h4>
+                        <p>Dependency checks from the last summary. Use the probe if you need the raw live and ready responses.</p>
+                    </div>
+                    <div id="pg-readiness"></div>
+                    <div id="pg-probes" class="ops-probe"></div>
+                    <div class="panel-card-actions">
+                        <button type="button" class="btn-secondary" onclick="pgProbeHealth()" data-i18n="ui.probe_live_ready">Probe live / ready</button>
+                    </div>
+                </section>
+
+                <section class="panel-card panel-card-wide">
+                    <div class="panel-card-header">
+                        <h4>Active alerts</h4>
+                        <p>Conditions that need an operator. Empty means nothing is raised right now.</p>
+                    </div>
+                    <div id="pg-alerts"></div>
+                </section>
+
+                <section class="panel-card panel-card-wide">
+                    <div class="panel-card-header">
+                        <h4 data-i18n="ui.jobs">Jobs</h4>
+                        <p>Background work on this instance. Dead jobs can be requeued.</p>
+                    </div>
+                    <div class="tab-bar" role="tablist">
+                        <button type="button" class="tab-btn active" id="pg-job-tab-dead" onclick="pgFilterJobs('DEAD')">Dead</button>
+                        <button type="button" class="tab-btn" id="pg-job-tab-queued" onclick="pgFilterJobs('QUEUED')">Queued</button>
+                        <button type="button" class="tab-btn" id="pg-job-tab-running" onclick="pgFilterJobs('RUNNING')">Running</button>
+                        <button type="button" class="tab-btn" id="pg-job-tab-all" onclick="pgFilterJobs('')" data-i18n="ui.all">All</button>
+                    </div>
+                    <div id="pg-jobs-list"></div>
+                </section>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PLATFORM VIEW (Part F) -->
+        <!-- ========================================== -->
+        <section id="platform-view" style="display:none;">
+            <div class="section-header">
+                <h2 data-i18n="page.platform">Platform &amp; API</h2>
+                <span id="pf-status" class="muted"></span>
+            </div>
+            <div class="form-row" style="gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                <button type="button" class="btn-secondary active" id="pf-tab-keys" onclick="showPfTab('keys')" data-i18n="ui.api_keys">API Keys</button>
+                <button type="button" class="btn-secondary" id="pf-tab-webhooks" onclick="showPfTab('webhooks')" data-i18n="ui.webhooks">Webhooks</button>
+            </div>
+
+            <div id="pf-panel-keys">
+                <div class="section-header" style="margin-top:0;">
+                    <h3 style="font-size:1rem;" data-i18n="ui.api_keys">API Keys</h3>
+                    <button class="btn-primary btn-sm" onclick="togglePfKeyForm()" data-i18n="ui.new_key">+ New Key</button>
+                </div>
+                <p class="muted" style="margin-bottom:12px;">Service-account keys (PL-11). The raw key is shown once at creation.</p>
+                <div id="pf-key-form" class="form-card" style="display:none;">
+                    <h3 data-i18n="ui.create_api_key">Create API Key</h3>
+                    <form onsubmit="createPfApiKey(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label data-i18n="ui.label">Label</label>
+                                <input type="text" id="pf-key-label" required placeholder="e.g. CI pipeline" />
+                            </div>
+                            <div class="form-group">
+                                <label>Scopes (comma-separated)</label>
+                                <input type="text" id="pf-key-scopes" placeholder="tasks:read,employees:read" />
+                            </div>
+                            <div class="form-group">
+                                <label>Expires in days (optional)</label>
+                                <input type="number" id="pf-key-expires" min="1" placeholder="365" />
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                            <button type="button" class="btn-secondary" onclick="togglePfKeyForm()" data-i18n="common.cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="pf-key-created" class="form-card" style="display:none;background:#f0fff4;border-color:#9ae6b4;">
+                    <h3 data-i18n="ui.copy_your_key_now">Copy your key now</h3>
+                    <p class="muted">This is the only time the full key will be shown.</p>
+                    <code id="pf-key-raw" style="word-break:break-all;display:block;padding:8px;background:#fff;border:1px solid #cbd5e0;border-radius:4px;"></code>
+                    <button type="button" class="btn-secondary btn-sm" style="margin-top:8px;" onclick="copyPfKey()" data-i18n="ui.copy">Copy</button>
+                </div>
+                <div id="pf-key-list" class="table-container"></div>
+            </div>
+
+            <div id="pf-panel-webhooks" style="display:none;">
+                <div class="section-header" style="margin-top:0;">
+                    <h3 style="font-size:1rem;" data-i18n="ui.webhooks">Webhooks</h3>
+                    <button class="btn-primary btn-sm" onclick="togglePfWebhookForm()" data-i18n="ui.new_subscription">+ New Subscription</button>
+                </div>
+                <p class="muted" style="margin-bottom:12px;">Outbound event delivery (PL-13). Signing secret shown once at creation.</p>
+                <div id="pf-webhook-form" class="form-card" style="display:none;">
+                    <h3 data-i18n="ui.create_webhook">Create Webhook</h3>
+                    <form onsubmit="createPfWebhook(event)">
+                        <div class="form-group">
+                            <label data-i18n="ui.label">Label</label>
+                            <input type="text" id="pf-wh-label" placeholder="My integration" />
+                        </div>
+                        <div class="form-group">
+                            <label>Target URL (https)</label>
+                            <input type="url" id="pf-wh-url" required placeholder="https://example.com/webhooks/staffdesk" />
+                        </div>
+                        <div class="form-group">
+                            <label>Event types (comma-separated)</label>
+                            <input type="text" id="pf-wh-events" required placeholder="TASK_CREATED,TASK_DONE" />
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                            <button type="button" class="btn-secondary" onclick="togglePfWebhookForm()" data-i18n="common.cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="pf-wh-secret" class="form-card" style="display:none;background:#f0fff4;border-color:#9ae6b4;">
+                    <h3 data-i18n="ui.copy_signing_secret_now">Copy signing secret now</h3>
+                    <code id="pf-wh-secret-val" style="word-break:break-all;display:block;padding:8px;background:#fff;border:1px solid #cbd5e0;border-radius:4px;"></code>
+                </div>
+                <div id="pf-webhook-list" class="table-container"></div>
+                <div id="pf-webhook-deliveries" class="detail-panel" style="display:none;margin-top:16px;">
+                    <div class="section-header" style="margin-top:0;">
+                        <h3 style="font-size:1rem;">Deliveries — <span id="pf-wh-del-label"></span></h3>
+                        <button class="btn-secondary btn-sm" onclick="hidePfDeliveries()" data-i18n="common.close">Close</button>
+                    </div>
+                    <div id="pf-delivery-list" class="table-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- LOADING & ERROR -->
+        <!-- ========================================== -->
+        <div id="loading" style="display:none;text-align:center;padding:40px;color:#4a5568;">Loading...</div>
+        <div id="error" class="error" style="display:none;"></div>
+
+        <!-- ========================================== -->
+        <!-- TASK DETAIL MODAL -->
+        <!-- ========================================== -->
+        <div id="task-detail-modal" class="modal-overlay" onclick="if(event.target===this)closeTaskDetail()">
+            <div class="modal modal-lg">
+                <div class="modal-header">
+                    <h2 id="modal-task-title" data-i18n="ui.task_details">Task Details</h2>
+                    <button class="modal-close" onclick="closeTaskDetail()">&times;</button>
+                </div>
+                <div id="task-detail-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared providers and the root router. Must load first: the feature
+         modules below are classic scripts that call into it. -->
+    <script src="i18n.js?v=8"></script>
+    <script src="app.js?v=23"></script>
+
+    <!-- Feature modules -->
+    <script src="dashboard.js?v=2"></script>
+    <script src="departments.js?v=3"></script>
+    <script src="employees.js?v=3"></script>
+    <script src="levels.js?v=2"></script>
+    <script src="tasks.js?v=3"></script>
+    <script src="task-detail.js?v=2"></script>
+    <script src="approvals.js?v=1"></script>
+    <script src="requests.js?v=1"></script>
+    <script src="sla.js?v=2"></script>
+    <script src="delegations.js?v=1"></script>
+    <script src="templates.js?v=1"></script>
+    <script src="notifications.js?v=1"></script>
+    <script src="leave.js?v=1"></script>
+    <script src="capacity.js?v=1"></script>
+    <script src="timesheets.js?v=1"></script>
+    <script src="calendars.js?v=1"></script>
+    <script src="analytics.js?v=3"></script>
+    <script src="performance.js?v=1"></script>
+    <script src="platform.js?v=1"></script>
+    <script src="operations.js?v=2"></script>
+    <script src="audit.js?v=1"></script>
+    <script src="security.js?v=1"></script>
+    <script src="profile.js?v=2"></script>
+</body>
+</html>

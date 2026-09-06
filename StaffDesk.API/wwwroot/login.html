@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - StaffDesk</title>
+    <link rel="stylesheet" href="style.css?v=8" />
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+                if (localStorage.getItem('lang') === 'ar') {
+                    document.documentElement.setAttribute('lang', 'ar');
+                    document.documentElement.setAttribute('dir', 'rtl');
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
+    <style>
+        body {
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(1000px 500px at 15% -10%, color-mix(in srgb, var(--brand-100) 70%, transparent) 0%, transparent 60%),
+                radial-gradient(800px 400px at 100% 110%, color-mix(in srgb, var(--brand-50) 80%, transparent) 0%, transparent 55%),
+                var(--canvas);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 34px 32px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .login-brand .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .login-brand h1 { font-size: 19px; font-weight: 700; color: var(--ink-900); }
+        .login-brand p  { font-size: 12.5px; color: var(--ink-500); }
+
+        .login-container h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink-900);
+            margin-bottom: 4px;
+        }
+
+        .login-container .subtitle {
+            color: var(--ink-500);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .login-container button[type="submit"] {
+            width: 100%;
+            padding: 11px;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .login-container .error { margin-top: 14px; font-size: 13px; }
+
+        .demo-credentials {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--line-soft);
+            font-size: 12.5px;
+            color: var(--ink-500);
+            line-height: 1.9;
+        }
+
+        .demo-credentials strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--ink-700);
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .demo-credentials code {
+            background: var(--surface-2);
+            border: 1px solid var(--line);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--ink-800);
+        }
+    </style>
+</head>
+<body data-i18n-doc-title="login.title">
+    <div class="login-container">
+        <div class="login-brand">
+            <span class="brand-mark">SD</span>
+            <div>
+                <h1>StaffDesk</h1>
+                <p data-i18n="brand.tagline">Workforce operations</p>
+            </div>
+        </div>
+
+        <h2 data-i18n="login.heading">Sign in</h2>
+        <p class="subtitle" data-i18n="login.subtitle">Use your StaffDesk account to continue.</p>
+
+        <form onsubmit="login(event)">
+            <div class="form-group">
+                <label for="username" data-i18n="label.username">Username</label>
+                <input type="text" id="username" data-i18n-placeholder="login.usernamePh" placeholder="Enter username" autocomplete="username" required />
+            </div>
+            <div class="form-group">
+                <label for="password" data-i18n="label.password">Password</label>
+                <input type="password" id="password" data-i18n-placeholder="login.passwordPh" placeholder="Enter password" autocomplete="current-password" required />
+            </div>
+            <button type="submit" class="btn-primary" data-i18n="login.submit">Sign in</button>
+        </form>
+
+        <div id="login-error" class="error" style="display:none;"></div>
+
+        <div class="demo-credentials">
+            <strong data-i18n="login.demo">Demo credentials</strong>
+            <code>admin</code> / <code>admin123</code> (Admin)<br />
+            <code>manager</code> / <code>manager123</code> (Manager)<br />
+            <code>hr</code> / <code>hr123</code> (HR Admin)<br />
+            <code>auditor</code> / <code>auditor123</code> (Auditor)<br />
+            <code>intern</code> / <code>intern123</code> (Member)
+        </div>
+    </div>
+
+    <script src="i18n.js?v=8"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof setLanguage === 'function') {
+                setLanguage(getStoredLang(), { reloadView: false });
+            }
+        });
+
+        async function login(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('login-error');
+
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            if (!username || !password) {
+                errorDiv.textContent = t('login.needCredentials');
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const msg = (data && data.error && data.error.message) || data.error || t('login.failed');
+                    errorDiv.textContent = typeof msg === 'string' ? msg : t('login.failed');
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                localStorage.setItem('token', data.accessToken || data.token);
+                if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('role', data.role);
+                if (data.expiresAt) localStorage.setItem('expiresAt', data.expiresAt);
+
+                window.location.href = '/index.html';
+            } catch (error) {
+                errorDiv.textContent = t('login.network');
+                errorDiv.style.display = 'block';
+                console.error('Login error:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                fetch('/v1/departments', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/index.html';
+                    } else {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('refreshToken');
+                        localStorage.removeItem('username');
+                        localStorage.removeItem('role');
+                        localStorage.removeItem('expiresAt');
+                    }
+                })
+                .catch(() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('role');
+                    localStorage.removeItem('expiresAt');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

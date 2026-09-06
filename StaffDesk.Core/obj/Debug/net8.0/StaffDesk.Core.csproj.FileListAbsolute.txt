@@ -1,0 +1,12 @@
+D:\PROJECTS\StaffDesk\StaffDesk.Core\bin\Debug\net8.0\StaffDesk.Core.deps.json
+D:\PROJECTS\StaffDesk\StaffDesk.Core\bin\Debug\net8.0\StaffDesk.Core.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Core\bin\Debug\net8.0\StaffDesk.Core.pdb
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.csproj.AssemblyReference.cache
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.AssemblyInfoInputs.cache
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.AssemblyInfo.cs
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.csproj.CoreCompileInputs.cache
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\refint\StaffDesk.Core.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\StaffDesk.Core.pdb
+D:\PROJECTS\StaffDesk\StaffDesk.Core\obj\Debug\net8.0\ref\StaffDesk.Core.dll
