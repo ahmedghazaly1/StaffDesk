@@ -1,0 +1,19 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy everything so project references between StaffDesk.Worker, StaffDesk.Core,
+# and StaffDesk.Infrastructure resolve correctly.
+COPY . .
+
+RUN dotnet restore "StaffDesk.Worker/StaffDesk.Worker.csproj"
+RUN dotnet publish "StaffDesk.Worker/StaffDesk.Worker.csproj" -c Release -o /app/publish --no-restore
+
+# Runtime stage
+# Worker projects are typically console apps / hosted services with no web
+# endpoints, so the plain runtime image (no ASP.NET Core parts) is sufficient.
+FROM mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "StaffDesk.Worker.dll"]
