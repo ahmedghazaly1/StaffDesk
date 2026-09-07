@@ -401,7 +401,7 @@ function showTasks() {
     showView('tasks-view', 'nav-tasks', '#tasks');
     document.getElementById('bulk-delete-btn').style.display = isAdmin() ? 'inline-flex' : 'none';
     loadActiveEmployeesForBulk();
-    loadSavedViewsDropdown();
+    loadTaskDepartmentFilter();
     loadTasks();
 }
 

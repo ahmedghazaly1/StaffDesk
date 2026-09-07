@@ -1,18 +1,19 @@
 // ============================================
-// Task list: filters, pagination, selection and bulk actions, saved views,
-// and task creation.
+// Task list: filters, pagination, selection and bulk actions,
+// sorting, and task creation.
 // ============================================
 
 // Task pagination
 let taskCurrentPage = 1;
 const TASK_PAGE_SIZE = 10;
 let currentTaskFilters = {};
+let currentTaskSort = '-createdAt';
 
 // Phase 3 state
 let selectedTaskIds = new Set();
 let currentTasksPage = [];
 let activeEmployeesCache = [];
-let currentSavedViewId = null;
+
 
 function showTaskWarnings(task) {
     if (task && Array.isArray(task.warnings) && task.warnings.length) {
@@ -28,6 +29,7 @@ async function loadTasks() {
         const params = {
             page: taskCurrentPage,
             limit: TASK_PAGE_SIZE,
+            sort: currentTaskSort,
             ...currentTaskFilters
         };
         const data = await fetchApi('/tasks', {}, params);
@@ -38,6 +40,23 @@ async function loadTasks() {
         }
     } catch (error) {
         console.error('Failed to load tasks:', error);
+    }
+}
+
+async function loadTaskDepartmentFilter() {
+    const sel = document.getElementById('filter-department');
+    if (!sel || sel.dataset.deptsLoaded === 'true') return;
+    const allLabel = typeof t === 'function' ? t('filter.allDepartments') : 'All Departments';
+    try {
+        const depts = await fetchApi('/departments', {}, {}, true) || [];
+        sel.innerHTML = `<option value="">${allLabel}</option>` +
+            depts.map(d =>
+                `<option value="${d.id}">${escapeHtml(typeof translatePhrase === 'function' ? translatePhrase(d.name) : d.name)}</option>`
+            ).join('');
+        sel.dataset.deptsLoaded = 'true';
+    } catch (error) {
+        console.error('Failed to load department filter:', error);
+        sel.innerHTML = `<option value="">${allLabel}</option>`;
     }
 }
 
@@ -199,6 +218,11 @@ function renderTasks(data) {
     }
 
     const allSelected = data.data.every(task => selectedTaskIds.has(task.id));
+    const sortIndicator = (key) => {
+        if (currentTaskSort === key) return ' ▲';
+        if (currentTaskSort === `-${key}`) return ' ▼';
+        return '';
+    };
     
     let html = `
         <table>
@@ -210,13 +234,13 @@ function renderTasks(data) {
                     <th>${tt('table.key')}</th>
                     <th>${tt('table.title')}</th>
                     <th>${tt('table.status')}</th>
-                    <th>${tt('table.priority')}</th>
+                    <th class="sortable-th" onclick="sortTasksBy('priority')" title="${tt('table.priority')}">${tt('table.priority')}${sortIndicator('priority')}</th>
                     <th>${tt('table.sla')}</th>
                     <th>${tt('table.rework')}</th>
                     <th>${tt('table.reopen')}</th>
                     <th>${tt('table.assignee')}</th>
                     <th>${tt('table.department')}</th>
-                    <th>${tt('table.dueDate')}</th>
+                    <th class="sortable-th" onclick="sortTasksBy('dueAt')" title="${tt('table.dueDate')}">${tt('table.dueDate')}${sortIndicator('dueAt')}</th>
                     <th>${tt('table.actions')}</th>
                 </tr>
             </thead>
@@ -281,7 +305,8 @@ function applyTaskFilters() {
     currentTaskFilters = {
         status: document.getElementById('filter-status').value || undefined,
         priority: document.getElementById('filter-priority').value || undefined,
-        search: document.getElementById('task-search').value || undefined
+        departmentId: document.getElementById('filter-department').value || undefined,
+        search: document.getElementById('task-search').value.trim() || undefined
     };
     taskCurrentPage = 1;
     loadTasks();
@@ -290,8 +315,23 @@ function applyTaskFilters() {
 function resetTaskFilters() {
     document.getElementById('filter-status').value = '';
     document.getElementById('filter-priority').value = '';
+    document.getElementById('filter-department').value = '';
     document.getElementById('task-search').value = '';
     currentTaskFilters = {};
+    currentTaskSort = '-createdAt';
+    taskCurrentPage = 1;
+    loadTasks();
+}
+
+function sortTasksBy(field) {
+    if (currentTaskSort === field) {
+        currentTaskSort = `-${field}`;
+    } else if (currentTaskSort === `-${field}`) {
+        currentTaskSort = field;
+    } else {
+        // First click: priority high→low, due date soonest first
+        currentTaskSort = field === 'priority' ? 'priority' : 'dueAt';
+    }
     taskCurrentPage = 1;
     loadTasks();
 }
@@ -388,58 +428,6 @@ async function createTask(event) {
     } catch (error) {
         document.getElementById('task-error').textContent = error.message;
         document.getElementById('task-error').style.display = 'block';
-    }
-}
-
-// ============================================
-// Saved views
-// ============================================
-async function loadSavedViewsDropdown() {
-    const sel = document.getElementById('saved-view-select');
-    if (!sel) return;
-    try {
-        const views = await fetchApi('/saved-views', {}, {}, true) || [];
-        sel.innerHTML = `<option value="">${typeof t === 'function' ? t('filter.savedView') : '— Saved View —'}</option>` +
-            views.map(v => `<option value="${v.id}" ${currentSavedViewId == v.id ? 'selected' : ''}>${escapeHtml(v.name)}</option>`).join('');
-    } catch {
-        sel.innerHTML = `<option value="">${typeof t === 'function' ? t('filter.savedView') : '— Saved View —'}</option>`;
-    }
-}
-
-function toggleSaveViewForm() {
-    const f = document.getElementById('save-view-form');
-    if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
-}
-
-async function saveCurrentView() {
-    const name = document.getElementById('save-view-name')?.value.trim();
-    if (!name) { showError('Enter a view name'); return; }
-    const filterJson = JSON.stringify({
-        status: document.getElementById('filter-status')?.value || '',
-        priority: document.getElementById('filter-priority')?.value || '',
-        search: document.getElementById('task-search')?.value || ''
-    });
-    await fetchApi('/saved-views', {
-        method: 'POST',
-        body: JSON.stringify({ name, visibility: document.getElementById('save-view-visibility')?.value || 'PRIVATE', filterJson })
-    });
-    toggleSaveViewForm();
-    loadSavedViewsDropdown();
-    showError('✅ View saved!');
-}
-
-async function applySavedView() {
-    const id = document.getElementById('saved-view-select')?.value;
-    if (!id) { currentSavedViewId = null; loadTasks(); return; }
-    currentSavedViewId = id;
-    try {
-        const res = await fetchApi(`/saved-views/${id}/tasks`, {}, { page: taskCurrentPage, limit: TASK_PAGE_SIZE });
-        if (res) {
-            currentTasksPage = res.data || [];
-            renderTasks(res);
-        }
-    } catch (error) {
-        showError('❌ ' + error.message);
     }
 }
 

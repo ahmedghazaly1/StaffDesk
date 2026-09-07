@@ -636,6 +636,16 @@ th {
     white-space: nowrap;
 }
 
+th.sortable-th {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.sortable-th:hover {
+    color: var(--ink-900);
+    background: var(--line-soft);
+}
+
 tbody tr { transition: background var(--ease); }
 tbody tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--surface-2); }

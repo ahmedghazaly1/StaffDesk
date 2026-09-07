@@ -429,11 +429,7 @@
 
             <div class="controls">
                 <div class="search-box">
-                    <input type="text" id="task-search" data-i18n-placeholder="filter.searchTasks" placeholder="Search tasks..." oninput="applyTaskFilters()" />
-                    <select id="saved-view-select" onchange="applySavedView()" title="Saved views">
-                        <option value="" data-i18n="filter.savedView">— Saved View —</option>
-                    </select>
-                    <button class="btn-secondary btn-sm" onclick="toggleSaveViewForm()" title="Save current filters">💾 Save View</button>
+                    <input type="text" id="task-search" data-i18n-placeholder="filter.searchTasks" placeholder="Search by task or assignee..." oninput="applyTaskFilters()" />
                     <select id="filter-status" onchange="applyTaskFilters()">
                         <option value="" data-i18n="filter.allStatus">All Status</option>
                         <option value="OPEN" data-i18n="status.OPEN">Open</option>
@@ -450,34 +446,15 @@
                         <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
                         <option value="LOW" data-i18n="priority.LOW">Low</option>
                     </select>
+                    <select id="filter-department" onchange="applyTaskFilters()">
+                        <option value="" data-i18n="filter.allDepartments">All Departments</option>
+                    </select>
                     <button class="btn-secondary btn-sm" onclick="resetTaskFilters()" data-i18n="common.reset">Reset</button>
                 </div>
                 <div class="pagination">
                     <button id="task-prev-btn" onclick="taskPreviousPage()" data-i18n="common.prev">◀ Prev</button>
                     <span id="task-page-info" data-i18n="ui.page_1_of_1">Page 1 of 1</span>
                     <button id="task-next-btn" onclick="taskNextPage()" data-i18n="common.next">Next ▶</button>
-                </div>
-            </div>
-
-            <div id="save-view-form" class="form-card" style="display:none;margin-bottom:16px;">
-                <h3 data-i18n="common.saveViewTitle">Save Current Filters as View</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label data-i18n="label.name">Name</label>
-                        <input type="text" id="save-view-name" placeholder="e.g., My blocked tasks" / data-i18n-placeholder="ui.e_g_my_blocked_tasks">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="filter.visibility">Visibility</label>
-                        <select id="save-view-visibility">
-                            <option value="PRIVATE" data-i18n="filter.private">Private</option>
-                            <option value="DEPARTMENT" data-i18n="filter.department">Department</option>
-                            <option value="PUBLIC" data-i18n="filter.public">Public</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button class="btn-primary btn-sm" onclick="saveCurrentView()" data-i18n="common.save">Save</button>
-                    <button class="btn-secondary btn-sm" onclick="toggleSaveViewForm()" data-i18n="common.cancel">Cancel</button>
                 </div>
             </div>
 

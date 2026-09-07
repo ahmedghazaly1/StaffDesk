@@ -136,10 +136,12 @@ public class TaskRepository : ITaskRepository
         // Filters
         if (!string.IsNullOrWhiteSpace(search))
         {
+            var term = search.ToLower();
             query = query.Where(t =>
-                t.Title.ToLower().Contains(search.ToLower()) ||
-                (t.Description != null && t.Description.ToLower().Contains(search.ToLower())) ||
-                t.Key.ToLower().Contains(search.ToLower()));
+                t.Title.ToLower().Contains(term) ||
+                (t.Description != null && t.Description.ToLower().Contains(term)) ||
+                t.Key.ToLower().Contains(term) ||
+                (t.Assignee != null && t.Assignee.FullName.ToLower().Contains(term)));
         }
 
         if (!string.IsNullOrWhiteSpace(status))

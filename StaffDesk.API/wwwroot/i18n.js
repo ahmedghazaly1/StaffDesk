@@ -233,9 +233,10 @@ const I18N_STRINGS = {
 
         'filter.allStatus': 'All Status',
         'filter.allPriority': 'All Priority',
+        'filter.allDepartments': 'All Departments',
         'filter.savedView': '— Saved View —',
         'filter.saveView': 'Save View',
-        'filter.searchTasks': 'Search tasks...',
+        'filter.searchTasks': 'Search by task or assignee...',
         'filter.searchEmployees': 'Search by name...',
         'filter.status': '— Status —',
         'filter.assignee': '— Assignee —',
@@ -1228,9 +1229,10 @@ const I18N_STRINGS = {
 
         'filter.allStatus': 'كل الحالات',
         'filter.allPriority': 'كل الأولويات',
+        'filter.allDepartments': 'كل الأقسام',
         'filter.savedView': '— عرض محفوظ —',
         'filter.saveView': 'حفظ العرض',
-        'filter.searchTasks': 'بحث في المهام...',
+        'filter.searchTasks': 'بحث باسم المهمة أو المكلف...',
         'filter.searchEmployees': 'بحث بالاسم...',
         'filter.status': '— الحالة —',
         'filter.assignee': '— المكلَّف —',
