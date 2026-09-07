@@ -130,5 +130,5 @@ async function declineRequest(id) {
         method: 'POST', body: JSON.stringify({ reasonCategory: cat.split(':')[0].trim(), note })
     });
     loadTaskRequests();
-    showError('Request declined.');
+    showSuccess('Request declined.');
 }

@@ -360,7 +360,7 @@ async function deleteRecurrenceRule(id) {
 
 async function generateOccurrences() {
     if (!isAdmin()) {
-        showError('Only admins can trigger generation');
+        showRestricted();
         return;
     }
     try {
@@ -382,7 +382,10 @@ async function loadOccurrences(ruleId) {
 }
 
 async function materializeOccurrences() {
-    if (!isAdmin()) { showError('Admin only'); return; }
+    if (!isAdmin()) {
+        showRestricted();
+        return;
+    }
     const res = await fetchApi('/recurrence/materialize', { method: 'POST', body: '{}' });
     showError(`✅ Materialized ${res.created} task(s).`);
     loadTemplates();

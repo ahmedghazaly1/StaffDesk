@@ -127,7 +127,7 @@ async function skipApprovalStep(stepId) {
     const reason = prompt('Skip reason:') || null;
     await fetchApi(`/approvals/steps/${stepId}/skip`, { method: 'POST', body: JSON.stringify({ reason }) });
     if (currentDetailTaskId) await refreshTaskDetail(currentDetailTaskId);
-    showError('Step skipped.');
+    showSuccess('Step skipped.');
 }
 
 async function reassignApprovalStep(stepId) {
@@ -137,5 +137,5 @@ async function reassignApprovalStep(stepId) {
         method: 'POST', body: JSON.stringify({ newApproverId: parseInt(newId, 10), reason: null })
     });
     if (currentDetailTaskId) await refreshTaskDetail(currentDetailTaskId);
-    showError('Step reassigned.');
+    showSuccess('Step reassigned.');
 }

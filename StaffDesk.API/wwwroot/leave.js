@@ -70,7 +70,7 @@ async function submitLeaveRequest(event) {
         })
     });
     toggleLeaveRequestForm();
-    showError('Leave request submitted.');
+    showSuccess('Leave request submitted.');
     loadLeave();
 }
 

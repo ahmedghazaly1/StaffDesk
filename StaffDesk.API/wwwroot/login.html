@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - StaffDesk</title>
-    <link rel="stylesheet" href="style.css?v=8" />
+    <link rel="stylesheet" href="style.css?v=9" />
     <script>
         (function () {
             try {
@@ -149,7 +149,8 @@
         </div>
     </div>
 
-    <script src="i18n.js?v=8"></script>
+    <script src="i18n.js?v=10"></script>
+    <script src="toast.js?v=1"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof setLanguage === 'function') {
@@ -167,9 +168,18 @@
             errorDiv.style.display = 'none';
             errorDiv.textContent = '';
 
-            if (!username || !password) {
-                errorDiv.textContent = t('login.needCredentials');
+            const deny = (reason) => {
+                if (typeof showDenied === 'function') {
+                    showDenied(reason);
+                    return;
+                }
+                errorDiv.textContent = reason;
                 errorDiv.style.display = 'block';
+            };
+
+            if (!username || !password) {
+                if (typeof showFillBlanks === 'function') showFillBlanks();
+                else deny(t('login.needCredentials'));
                 return;
             }
 
@@ -186,8 +196,7 @@
 
                 if (!response.ok) {
                     const msg = (data && data.error && data.error.message) || data.error || t('login.failed');
-                    errorDiv.textContent = typeof msg === 'string' ? msg : t('login.failed');
-                    errorDiv.style.display = 'block';
+                    deny(typeof msg === 'string' ? msg : t('login.failed'));
                     return;
                 }
 
@@ -199,8 +208,7 @@
 
                 window.location.href = '/index.html';
             } catch (error) {
-                errorDiv.textContent = t('login.network');
-                errorDiv.style.display = 'block';
+                deny(t('login.network'));
                 console.error('Login error:', error);
             }
         }

@@ -54,16 +54,35 @@ function hideLoading() {
 }
 
 function showError(message) {
-    const errorDiv = document.getElementById('error');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
+    const raw = String(message ?? '').trim();
+    if (!raw) return;
+    const detail = typeof cleanToastMessage === 'function' ? cleanToastMessage(raw) : raw.replace(/^[✅❌⚠]\s*/, '').trim();
+    if (raw.startsWith('✅') || raw.startsWith('⚠')) {
+        showSuccess(detail);
+        return;
+    }
+    showDenied(detail);
 }
 
 function hideError() {
-    document.getElementById('error').style.display = 'none';
+    const errorDiv = document.getElementById('error');
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (typeof dismissAllToasts === 'function') dismissAllToasts();
+}
+
+function apiToastReason(status, err) {
+    if (status === 403) {
+        return typeof toastPhrase === 'function'
+            ? toastPhrase('toast.restricted_access', 'Restricted access')
+            : 'Restricted access';
+    }
+    const blob = [err?.message, ...(err?.details || [])].join(' ');
+    if (status === 400 && /required|must not be empty|cannot be empty|is required/i.test(blob)) {
+        return typeof toastPhrase === 'function'
+            ? toastPhrase('toast.fill_blanks', 'Please fill the blanks')
+            : 'Please fill the blanks';
+    }
+    return err?.message || 'Something went wrong';
 }
 
 function getApiUrl(endpoint, params = {}) {
@@ -181,6 +200,10 @@ async function fetchApi(endpoint, options = {}, params = {}, silent = false) {
             return null;
         }
 
+        if (response.status === 403) {
+            throw new Error(apiToastReason(403, {}));
+        }
+
         // PL-9: rate limit with Retry-After.
         if (response.status === 429) {
             const retryAfter = response.headers.get('Retry-After') || '60';
@@ -191,7 +214,7 @@ async function fetchApi(endpoint, options = {}, params = {}, silent = false) {
 
         const contentLength = response.headers.get('content-length');
         if (response.status === 204 || contentLength === '0') {
-            if (!response.ok) throw new Error('Something went wrong');
+            if (!response.ok) throw new Error(apiToastReason(response.status, {}));
             return null;
         }
 
@@ -213,7 +236,7 @@ async function fetchApi(endpoint, options = {}, params = {}, silent = false) {
                     resourceEtags[etagKey] = String(etagDetail).slice('currentETag:'.length);
                 }
             }
-            const message = err.message || 'Something went wrong';
+            const message = apiToastReason(response.status, err);
             throw new Error(message);
         }
         return data;
@@ -413,7 +436,7 @@ function showRequests() {
 
 function showSla() {
     if (!isAdmin()) {
-        showError('SLA administration is for admins only');
+        showRestricted();
         return;
     }
     currentView = 'sla';
@@ -459,7 +482,7 @@ function showAnalytics() {
 
 function showCalendars() {
     if (!isAdmin()) {
-        showError('Calendars administration is for admins only');
+        showRestricted();
         return;
     }
     currentView = 'calendars';
@@ -469,7 +492,7 @@ function showCalendars() {
 
 function showAudit() {
     if (!isAuditViewer()) {
-        showError('Audit is for Admin and Auditor roles only');
+        showRestricted();
         return;
     }
     currentView = 'audit';

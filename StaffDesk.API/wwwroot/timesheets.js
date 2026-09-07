@@ -146,7 +146,7 @@ async function submitTimesheetWeek() {
         method: 'POST',
         body: JSON.stringify({ weekStart: monthStart })
     });
-    showError('Timesheet submitted.');
+    showSuccess('Timesheet submitted.');
     prepareTimesheets();
 }
 

@@ -289,7 +289,7 @@ async function applyBulkAction() {
 
 async function applyBulkDelete() {
     if (!isAdmin()) {
-        showError('Only admins can bulk delete tasks');
+        showRestricted();
         return;
     }
     const ids = Array.from(selectedTaskIds);

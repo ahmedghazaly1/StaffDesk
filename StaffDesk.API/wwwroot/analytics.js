@@ -298,7 +298,7 @@ function renderAnalyticsCompare(cmp) {
 
 async function rebuildAnalytics() {
     if (!isAdmin()) {
-        showError(axPhrase('Rebuild is admin-only'));
+        showRestricted();
         return;
     }
     const { departmentId, from, to } = analyticsQuery();

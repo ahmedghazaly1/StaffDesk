@@ -113,6 +113,10 @@
       "PackagePath": "staticwebassets\\timesheets.js"
     },
     {
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\toast.js",
+      "PackagePath": "staticwebassets\\toast.js"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.StaffDesk.API.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },

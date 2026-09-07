@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "1Dn6uJpMDqmo8zXQ676aJj1bifkQl4yKFrFG1PNG+T0=",
+  "Hash": "XQRXf0PE03xEB0NmVOJbfDbEF5Cf7AzwHJ4YzutXFp0=",
   "Source": "StaffDesk.API",
   "BasePath": "_content/StaffDesk.API",
   "Mode": "Default",
@@ -547,6 +547,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\timesheets.js"
+    },
+    {
+      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\toast.js",
+      "SourceId": "StaffDesk.API",
+      "SourceType": "Discovered",
+      "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
+      "BasePath": "_content/StaffDesk.API",
+      "RelativePath": "toast.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\toast.js"
     }
   ]
 }

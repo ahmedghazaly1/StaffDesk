@@ -6,7 +6,7 @@
 
   window.showOperations = function showOperations() {
     if (!isAdmin()) {
-      showError('Operations dashboard is for admins only');
+      showRestricted();
       return;
     }
     showView('operations-view', 'nav-operations', '#operations');

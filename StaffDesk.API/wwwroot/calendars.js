@@ -68,5 +68,5 @@ async function setDepartmentCalendar(event) {
         method: 'PUT',
         body: JSON.stringify({ calendarId: raw === '' ? null : parseInt(raw, 10) })
     });
-    showError('Department calendar updated.');
+    showSuccess('Department calendar updated.');
 }

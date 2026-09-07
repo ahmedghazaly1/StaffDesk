@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StaffDesk.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6181a23afb43ead394a0f49d4d5525056a458162")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b9ebc04794f026acd464925e6b9c8646abeddc98")]
 [assembly: System.Reflection.AssemblyProductAttribute("StaffDesk.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StaffDesk.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

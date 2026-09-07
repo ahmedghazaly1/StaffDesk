@@ -55,7 +55,7 @@
     if (!confirm('Revoke all sessions for this employee? They will have to sign in again.')) return;
     try {
       await fetchApi('/auth/sessions/employee/' + employeeId, { method: 'DELETE' });
-      showError('Sessions revoked.');
+      showSuccess('Sessions revoked.');
     } catch (e) {
       showError(e.message);
     }

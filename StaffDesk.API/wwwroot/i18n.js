@@ -211,6 +211,11 @@ const I18N_STRINGS = {
         'login.failed': 'Login failed. Please try again.',
         'login.network': 'Network error. Please make sure the API is running.',
 
+        'toast.success': 'Success',
+        'toast.denied': 'Denied',
+        'toast.restricted_access': 'Restricted access',
+        'toast.fill_blanks': 'Please fill the blanks',
+
         'role.Admin': 'Admin',
         'role.Manager': 'Manager',
         'role.HR': 'HR',
@@ -1211,6 +1216,11 @@ const I18N_STRINGS = {
         'login.failed': 'فشل تسجيل الدخول. حاول مرة أخرى.',
         'login.network': 'خطأ في الشبكة. تأكد من تشغيل واجهة البرمجة.',
 
+        'toast.success': 'نجاح',
+        'toast.denied': 'مرفوض',
+        'toast.restricted_access': 'وصول مقيد',
+        'toast.fill_blanks': 'يرجى تعبئة الحقول الفارغة',
+
         'role.Admin': 'مسؤول',
         'role.Manager': 'مدير',
         'role.HR': 'موارد بشرية',
@@ -2160,6 +2170,10 @@ const I18N_PHRASE_KEYS = {
   "Search": "common.search",
   "Refresh": "ui.refresh",
   "Loading…": "common.loading",
+  "Success": "toast.success",
+  "Denied": "toast.denied",
+  "Restricted access": "toast.restricted_access",
+  "Please fill the blanks": "toast.fill_blanks",
   "Loading...": "common.loading_214",
   "Active": "common.active",
   "Inactive": "common.inactive",
