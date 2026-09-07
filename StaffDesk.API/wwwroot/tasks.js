@@ -8,6 +8,9 @@ let taskCurrentPage = 1;
 const TASK_PAGE_SIZE = 10;
 let currentTaskFilters = {};
 let currentTaskSort = '-createdAt';
+// Independent column directions: null = not sorting by this column, 'asc' | 'desc'
+let taskSortPriority = null;
+let taskSortDueAt = null;
 
 // Phase 3 state
 let selectedTaskIds = new Set();
@@ -219,11 +222,9 @@ function renderTasks(data) {
 
     const allSelected = data.data.every(task => selectedTaskIds.has(task.id));
     const sortIndicator = (key) => {
-        const parts = currentTaskSort.split(',');
-        const asc = parts.includes(key);
-        const desc = parts.includes(`-${key}`);
-        if (asc) return ' ▲';
-        if (desc) return ' ▼';
+        const dir = key === 'priority' ? taskSortPriority : key === 'dueAt' ? taskSortDueAt : null;
+        if (dir === 'asc') return ' ▲';
+        if (dir === 'desc') return ' ▼';
         return '';
     };
     
@@ -321,24 +322,37 @@ function resetTaskFilters() {
     document.getElementById('filter-department').value = '';
     document.getElementById('task-search').value = '';
     currentTaskFilters = {};
+    taskSortPriority = null;
+    taskSortDueAt = null;
     currentTaskSort = '-createdAt';
     taskCurrentPage = 1;
     loadTasks();
 }
 
+function buildTaskSort() {
+    const parts = [];
+    if (taskSortPriority === 'asc') parts.push('priority');
+    if (taskSortPriority === 'desc') parts.push('-priority');
+    if (taskSortDueAt === 'asc') parts.push('dueAt');
+    if (taskSortDueAt === 'desc') parts.push('-dueAt');
+    return parts.length ? parts.join(',') : '-createdAt';
+}
+
+function cycleSortDir(current) {
+    if (current === null) return 'asc';
+    if (current === 'asc') return 'desc';
+    return null;
+}
+
 function sortTasksBy(field) {
-    // Priority and due date always sort together: highest priority, then soonest due.
-    const combinedAsc = 'priority,dueAt';
-    const combinedDesc = '-priority,-dueAt';
-    if (field === 'priority' || field === 'dueAt') {
-        currentTaskSort = currentTaskSort === combinedAsc ? combinedDesc : combinedAsc;
-    } else if (currentTaskSort === field) {
-        currentTaskSort = `-${field}`;
-    } else if (currentTaskSort === `-${field}`) {
-        currentTaskSort = field;
-    } else {
-        currentTaskSort = field;
+    // Each column is independent — you can set priority and due date together.
+    // Click cycles: off → ascending → descending → off.
+    if (field === 'priority') {
+        taskSortPriority = cycleSortDir(taskSortPriority);
+    } else if (field === 'dueAt') {
+        taskSortDueAt = cycleSortDir(taskSortDueAt);
     }
+    currentTaskSort = buildTaskSort();
     taskCurrentPage = 1;
     loadTasks();
 }
