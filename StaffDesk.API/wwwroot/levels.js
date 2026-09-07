@@ -63,14 +63,12 @@ async function createLevel(event) {
     const description = document.getElementById('level-description').value.trim();
 
     if (!name) {
-        document.getElementById('level-error').textContent = 'Level name is required';
-        document.getElementById('level-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
     if (!rank || rank <= 0) {
-        document.getElementById('level-error').textContent = 'Rank must be a positive number';
-        document.getElementById('level-error').style.display = 'block';
+        showDenied('Rank must be a positive number');
         return;
     }
 
@@ -83,8 +81,7 @@ async function createLevel(event) {
         loadLevels();
         showError('✅ Level created successfully!');
     } catch (error) {
-        document.getElementById('level-error').textContent = error.message;
-        document.getElementById('level-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 
@@ -112,14 +109,12 @@ async function updateLevel(event) {
     const isActive = document.getElementById('edit-level-active').checked;
 
     if (!name) {
-        document.getElementById('edit-level-error').textContent = 'Level name is required';
-        document.getElementById('edit-level-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
     if (!rank || rank <= 0) {
-        document.getElementById('edit-level-error').textContent = 'Rank must be a positive number';
-        document.getElementById('edit-level-error').style.display = 'block';
+        showDenied('Rank must be a positive number');
         return;
     }
 
@@ -132,8 +127,7 @@ async function updateLevel(event) {
         loadLevels();
         showError('✅ Level updated successfully!');
     } catch (error) {
-        document.getElementById('edit-level-error').textContent = error.message;
-        document.getElementById('edit-level-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 

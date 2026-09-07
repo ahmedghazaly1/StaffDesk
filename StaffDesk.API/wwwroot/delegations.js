@@ -114,8 +114,7 @@ async function createDelegation(event) {
         loadDelegations();
         showError('✅ Delegation created!');
     } catch (error) {
-        document.getElementById('delegation-error').textContent = error.message;
-        document.getElementById('delegation-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 

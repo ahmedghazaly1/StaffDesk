@@ -65,9 +65,7 @@ function showError(message) {
 }
 
 function hideError() {
-    const errorDiv = document.getElementById('error');
-    if (errorDiv) errorDiv.style.display = 'none';
-    if (typeof dismissAllToasts === 'function') dismissAllToasts();
+    // Inline banners are unused; toasts dismiss themselves.
 }
 
 function apiToastReason(status, err) {

@@ -174,21 +174,18 @@ async function loadLevelDropdown() {
 
 async function createEmployee(event) {
     event.preventDefault();
-    hideError();
     const fullName = document.getElementById('emp-name').value.trim();
     const jobTitle = document.getElementById('emp-title').value.trim();
     const departmentId = parseInt(document.getElementById('emp-department').value);
     const levelId = parseInt(document.getElementById('emp-level').value);
 
     if (!departmentId) {
-        document.getElementById('emp-error').textContent = 'Please select a department';
-        document.getElementById('emp-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
     if (!levelId) {
-        document.getElementById('emp-error').textContent = 'Please select a seniority level';
-        document.getElementById('emp-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
@@ -201,8 +198,7 @@ async function createEmployee(event) {
         loadEmployees();
         showError('✅ Employee created successfully!');
     } catch (error) {
-        document.getElementById('emp-error').textContent = error.message;
-        document.getElementById('emp-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 
@@ -308,8 +304,7 @@ async function updateEmployee(event) {
     const isActive = document.getElementById('edit-emp-active').checked;
 
     if (!departmentId) {
-        document.getElementById('edit-emp-error').textContent = 'Please select a department';
-        document.getElementById('edit-emp-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
@@ -331,8 +326,7 @@ async function updateEmployee(event) {
         loadEmployees();
         showError('✅ Employee updated successfully!');
     } catch (error) {
-        document.getElementById('edit-emp-error').textContent = error.message;
-        document.getElementById('edit-emp-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 

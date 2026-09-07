@@ -345,8 +345,7 @@ async function updateTask(event) {
     const estimateMinutes = document.getElementById('edit-task-estimate').value;
 
     if (!title) {
-        document.getElementById('edit-task-error').textContent = 'Title is required';
-        document.getElementById('edit-task-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
@@ -370,8 +369,7 @@ async function updateTask(event) {
         showError('✅ Task updated successfully!');
         showTaskWarnings(updated);
     } catch (error) {
-        document.getElementById('edit-task-error').textContent = error.message;
-        document.getElementById('edit-task-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 // ============================================

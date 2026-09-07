@@ -110,8 +110,7 @@ async function submitTaskRequest(event) {
         loadTaskRequests();
         showError('✅ Request submitted!');
     } catch (error) {
-        document.getElementById('request-error').textContent = error.message;
-        document.getElementById('request-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 

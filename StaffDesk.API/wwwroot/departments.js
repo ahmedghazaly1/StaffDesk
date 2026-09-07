@@ -68,7 +68,6 @@ function hideCreateDepartment() {
 
 async function createDepartment(event) {
     event.preventDefault();
-    hideError();
     const name = document.getElementById('dept-name').value.trim();
     const location = document.getElementById('dept-location').value.trim();
 
@@ -81,8 +80,7 @@ async function createDepartment(event) {
         loadDepartments();
         showError('✅ Department created successfully!');
     } catch (error) {
-        document.getElementById('dept-error').textContent = error.message;
-        document.getElementById('dept-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 
@@ -122,8 +120,7 @@ async function updateDepartment(event) {
         loadDepartments();
         showError('✅ Department updated successfully!');
     } catch (error) {
-        document.getElementById('edit-dept-error').textContent = error.message;
-        document.getElementById('edit-dept-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 

@@ -532,14 +532,12 @@ async function createTask(event) {
         .filter(t => t);
 
     if (!title) {
-        document.getElementById('task-error').textContent = 'Title is required';
-        document.getElementById('task-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
     if (!departmentName) {
-        document.getElementById('task-error').textContent = 'Department name is required';
-        document.getElementById('task-error').style.display = 'block';
+        showFillBlanks();
         return;
     }
 
@@ -562,8 +560,7 @@ async function createTask(event) {
         showError('✅ Task created successfully!');
         showTaskWarnings(created);
     } catch (error) {
-        document.getElementById('task-error').textContent = error.message;
-        document.getElementById('task-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 

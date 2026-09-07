@@ -271,8 +271,7 @@ async function saveTemplate(event) {
         loadTemplates();
         showError(`✅ Scheduled task ${editId ? 'updated' : 'created'}!`);
     } catch (error) {
-        document.getElementById('template-error').textContent = error.message;
-        document.getElementById('template-error').style.display = 'block';
+        showDenied(error.message);
     }
 }
 
