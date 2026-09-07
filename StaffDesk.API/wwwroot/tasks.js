@@ -219,8 +219,11 @@ function renderTasks(data) {
 
     const allSelected = data.data.every(task => selectedTaskIds.has(task.id));
     const sortIndicator = (key) => {
-        if (currentTaskSort === key) return ' ▲';
-        if (currentTaskSort === `-${key}`) return ' ▼';
+        const parts = currentTaskSort.split(',');
+        const asc = parts.includes(key);
+        const desc = parts.includes(`-${key}`);
+        if (asc) return ' ▲';
+        if (desc) return ' ▼';
         return '';
     };
     
@@ -324,13 +327,17 @@ function resetTaskFilters() {
 }
 
 function sortTasksBy(field) {
-    if (currentTaskSort === field) {
+    // Priority and due date always sort together: highest priority, then soonest due.
+    const combinedAsc = 'priority,dueAt';
+    const combinedDesc = '-priority,-dueAt';
+    if (field === 'priority' || field === 'dueAt') {
+        currentTaskSort = currentTaskSort === combinedAsc ? combinedDesc : combinedAsc;
+    } else if (currentTaskSort === field) {
         currentTaskSort = `-${field}`;
     } else if (currentTaskSort === `-${field}`) {
         currentTaskSort = field;
     } else {
-        // First click: priority high→low, due date soonest first
-        currentTaskSort = field === 'priority' ? 'priority' : 'dueAt';
+        currentTaskSort = field;
     }
     taskCurrentPage = 1;
     loadTasks();
