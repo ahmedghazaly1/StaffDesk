@@ -173,41 +173,15 @@ public class ApprovalService : IApprovalService
                 $"Step {targetStep.Order} cannot be reviewed before step {nextPending.Order}, which is still pending");
 
         int? onBehalfOfId = null;
-
-        // Check if the reviewer is authorized (direct approver, delegate, manager, or Admin)
-        if (targetStep.ApproverId.HasValue && targetStep.ApproverId.Value != reviewerId)
-        {
-            var isDelegate = await _delegationService.IsDelegateForDelegatorAsync(reviewerId, targetStep.ApproverId.Value, "APPROVALS")
-                || await _delegationService.IsDelegateForDelegatorAsync(reviewerId, targetStep.ApproverId.Value, "ALL");
-
-            if (isDelegate)
-            {
-                onBehalfOfId = targetStep.ApproverId.Value;
-            }
-            else
-            {
-                // WC-29: delegates cannot use Admin/manager bypass outside their delegation.
-                if (await _delegationService.IsActiveDelegateAsync(reviewerId))
-                    throw new UnauthorizedAccessException("Delegates cannot use privileged roles outside their delegation scope");
-
-                var userRole = await GetUserRoleAsync(reviewerId);
-                var reviewerTask = await _taskRepository.GetByIdAsync(targetStep.TaskId);
-
-                var isAuthorized = userRole == "Admin" ||
-                                  (reviewerTask != null && await IsDepartmentManagerAsync(reviewerId, reviewerTask.DepartmentId));
-
-                if (!isAuthorized)
-                    throw new UnauthorizedAccessException("You are not authorized to review this step");
-            }
-        }
+        await AuthorizeReviewerAsync(targetStep, reviewerId, onBehalf => onBehalfOfId = onBehalf);
 
         var effectiveApproverId = onBehalfOfId ?? reviewerId;
 
-        // AP-3: Approver cannot approve a task they are assigned to
+        // AP-3: neither the acting reviewer nor the person they cover may approve their own assignment.
         if (state == "APPROVED")
         {
             var approvalTask = await _taskRepository.GetByIdAsync(targetStep.TaskId);
-            if (approvalTask?.AssigneeId == effectiveApproverId)
+            if (approvalTask?.AssigneeId == reviewerId || approvalTask?.AssigneeId == effectiveApproverId)
                 throw new InvalidOperationException("You cannot approve a task you are assigned to");
         }
 
@@ -349,10 +323,7 @@ public class ApprovalService : IApprovalService
         if (stepToSkip.State != "PENDING")
             throw new InvalidOperationException($"This step is already {stepToSkip.State}");
 
-        if (await _delegationService.IsActiveDelegateAsync(userId))
-            throw new UnauthorizedAccessException("Delegates cannot skip approval steps using privileged roles");
-
-        // Check authorization
+        // WC-29: skip is a held Admin/manager permission, not something delegation grants or removes.
         var userRole = await GetUserRoleAsync(userId);
         var skipTask = await _taskRepository.GetByIdAsync(stepToSkip.TaskId);
         
@@ -409,9 +380,6 @@ public class ApprovalService : IApprovalService
 
         if (step.State != "PENDING")
             throw new InvalidOperationException($"This step is already {step.State}");
-
-        if (await _delegationService.IsActiveDelegateAsync(userId))
-            throw new UnauthorizedAccessException("Delegates cannot reassign approval steps using privileged roles");
 
         var userRole = await GetUserRoleAsync(userId);
         var task = await _taskRepository.GetByIdAsync(step.TaskId);
@@ -504,26 +472,67 @@ public class ApprovalService : IApprovalService
         string outcome,
         string? note)
     {
-        try
+        var actor = await _employeeRepository.GetByIdAsync(actorId);
+        await _auditService.LogAsync(
+            eventType,
+            actorId,
+            actor != null ? $"{actor.FullName} ({actor.JobTitle})" : actorId.ToString(),
+            outcome,
+            "ApprovalStep",
+            stepId.ToString(),
+            onBehalfOfId,
+            new { taskId, stepId, note },
+            null,
+            null,
+            null);
+    }
+
+    private async Task AuthorizeReviewerAsync(ApprovalStep targetStep, int reviewerId, Action<int?> setOnBehalfOf)
+    {
+        if (targetStep.ApproverId.HasValue)
         {
-            var actor = await _employeeRepository.GetByIdAsync(actorId);
-            await _auditService.LogAsync(
-                eventType,
-                actorId,
-                actor != null ? $"{actor.FullName} ({actor.JobTitle})" : actorId.ToString(),
-                outcome,
-                "ApprovalStep",
-                stepId.ToString(),
-                onBehalfOfId,
-                new { taskId, stepId, note },
-                null,
-                null,
-                null);
+            if (targetStep.ApproverId.Value == reviewerId)
+                return;
+
+            var isDelegate = await _delegationService.IsDelegateForDelegatorAsync(
+                reviewerId, targetStep.ApproverId.Value, "APPROVALS");
+            if (isDelegate)
+            {
+                setOnBehalfOf(targetStep.ApproverId.Value);
+                return;
+            }
+
+            var reviewerTask = await _taskRepository.GetByIdAsync(targetStep.TaskId);
+            var userRole = await GetUserRoleAsync(reviewerId);
+            var isAuthorized = userRole == "Admin" ||
+                               (reviewerTask != null && await IsDepartmentManagerAsync(reviewerId, reviewerTask.DepartmentId));
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("You are not authorized to review this step");
+            return;
         }
-        catch
+
+        if (!string.IsNullOrWhiteSpace(targetStep.Role))
         {
-            // Non-critical
+            var userRole = await GetUserRoleAsync(reviewerId);
+            if (!RolesMatch(userRole, targetStep.Role))
+                throw new UnauthorizedAccessException($"This step requires role {targetStep.Role}");
+            return;
         }
+
+        throw new UnauthorizedAccessException("You are not authorized to review this step");
+    }
+
+    private static bool RolesMatch(string userRole, string requiredRole)
+    {
+        if (string.Equals(userRole, requiredRole, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (string.Equals(requiredRole, "MANAGER", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(userRole, User.Roles.Manager, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (string.Equals(requiredRole, "HR_ADMIN", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(userRole, User.Roles.HrAdmin, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 
     private async Task<bool> IsDepartmentManagerAsync(int userId, int departmentId)

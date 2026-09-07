@@ -158,8 +158,16 @@ internal sealed class Phase3World : IAsyncDisposable
             new StubSla(),
             new ClosureRepository(Db),
             new StubLeaveSvc(),
-            new StubTimesheet());
+            new StubTimesheet(),
+            Delegation());
     }
+
+    public DelegationService Delegation() =>
+        new(new DelegationRepository(Db), new EmployeeRepository(Db), Tasks(), Audit());
+
+    public ApprovalService Approvals() =>
+        new(new ApprovalRepository(Db), Tasks(), new EmployeeRepository(Db),
+            new DepartmentRepository(Db), Delegation(), Audit(), new UserRepository(Db));
 
     public TaskRequestService TaskRequests() =>
         new(new TaskRequestRepository(Db), Tasks(), new DepartmentRepository(Db), new UserRepository(Db));

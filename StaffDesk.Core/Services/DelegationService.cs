@@ -54,20 +54,20 @@ public class DelegationService : IDelegationService
         if (endDate.HasValue && endDate.Value < startDate)
             throw new ArgumentException("End date must be after start date");
 
-        // Check for overlapping delegation
-        var activeDelegations = await _delegationRepository.GetActiveForDelegatorAsync(delegatorId);
-        if (activeDelegations.Any(d => d.Scope == "ALL" || d.Scope == scope))
-        {
-            throw new InvalidOperationException($"You already have an active delegation for scope: {scope}");
-        }
+        var startUtc = startDate.Kind == DateTimeKind.Utc ? startDate : startDate.ToUniversalTime();
+        DateTime? endUtc = endDate.HasValue
+            ? (endDate.Value.Kind == DateTimeKind.Utc ? endDate.Value : endDate.Value.ToUniversalTime())
+            : null;
+
+        await EnsureNoOverlappingDelegationAsync(delegatorId, scope, startUtc, endUtc, excludeId: null);
 
         var delegation = new Delegation
         {
             DelegatorId = delegatorId,
             DelegateId = delegateId,
             Scope = scope,
-            StartDate = startDate.ToUniversalTime(),
-            EndDate = endDate?.ToUniversalTime(),
+            StartDate = startUtc,
+            EndDate = endUtc,
             Reason = reason,
             IsActive = true,
             CreatedBy = createdBy,
@@ -77,33 +77,23 @@ public class DelegationService : IDelegationService
 
         var created = await _delegationRepository.CreateAsync(delegation);
 
-        // Log activity
-        // Audit the delegation creation
-try
-{
-    await _auditService.LogAsync(
-        eventType: "DELEGATION_CREATED",
-        actorId: createdBy,
-        actorLabel: $"{delegator.FullName} ({delegator.JobTitle})",
-        outcome: "SUCCESS",
-        targetType: "Delegation",
-        targetId: created.Id.ToString(),
-        changes: new 
-        { 
-            delegateId = delegateEmp.Id,
-            delegateName = delegateEmp.FullName,
-            scope = scope,
-            startDate = startDate,
-            endDate = endDate,
-            reason = reason
-        }
-    );
-}
-catch (Exception ex)
-{
-    // Log but don't fail the operation
-    Console.WriteLine($"Audit write failed (non-critical): {ex.Message}");
-}
+        await _auditService.LogAsync(
+            eventType: "DELEGATION_CREATED",
+            actorId: createdBy,
+            actorLabel: $"{delegator.FullName} ({delegator.JobTitle})",
+            outcome: "SUCCESS",
+            targetType: "Delegation",
+            targetId: created.Id.ToString(),
+            changes: new
+            {
+                delegateId = delegateEmp.Id,
+                delegateName = delegateEmp.FullName,
+                scope,
+                startDate = startUtc,
+                endDate = endUtc,
+                reason
+            }
+        );
 
         return created;
     }
@@ -139,38 +129,34 @@ catch (Exception ex)
         if (delegation == null)
             throw new ArgumentException("Delegation not found");
 
-        if (endDate.HasValue && endDate.Value < delegation.StartDate)
+        DateTime? endUtc = endDate.HasValue
+            ? (endDate.Value.Kind == DateTimeKind.Utc ? endDate.Value : endDate.Value.ToUniversalTime())
+            : null;
+        if (endUtc.HasValue && endUtc.Value < delegation.StartDate)
             throw new ArgumentException("End date must be after start date");
 
-        delegation.EndDate = endDate?.ToUniversalTime();
+        if (isActive)
+        {
+            await EnsureNoOverlappingDelegationAsync(
+                delegation.DelegatorId, delegation.Scope, delegation.StartDate, endUtc, excludeId: id);
+        }
+
+        delegation.EndDate = endUtc;
         delegation.IsActive = isActive;
         delegation.Reason = reason ?? delegation.Reason;
         delegation.UpdatedAt = DateTime.UtcNow;
 
         var updated = await _delegationRepository.UpdateAsync(delegation);
 
-        // Audit the delegation update
-try
-{
-    await _auditService.LogAsync(
-        eventType: "DELEGATION_UPDATED",
-        actorId: userId,
-        actorLabel: $"User {userId}",
-        outcome: "SUCCESS",
-        targetType: "Delegation",
-        targetId: delegation.Id.ToString(),
-        changes: new 
-        { 
-            endDate = endDate,
-            isActive = isActive,
-            reason = reason
-        }
-    );
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Audit write failed (non-critical): {ex.Message}");
-}
+        await _auditService.LogAsync(
+            eventType: "DELEGATION_UPDATED",
+            actorId: userId,
+            actorLabel: $"User {userId}",
+            outcome: "SUCCESS",
+            targetType: "Delegation",
+            targetId: delegation.Id.ToString(),
+            changes: new { endDate = endUtc, isActive, reason }
+        );
         return updated;
     }
 
@@ -179,29 +165,21 @@ catch (Exception ex)
         var delegation = await _delegationRepository.GetByIdAsync(id);
         if (delegation == null) return false;
 
-        // Audit the delegation deletion
-try
-{
-    await _auditService.LogAsync(
-        eventType: "DELEGATION_DELETED",
-        actorId: userId,
-        actorLabel: $"User {userId}",
-        outcome: "SUCCESS",
-        targetType: "Delegation",
-        targetId: delegation.Id.ToString(),
-        changes: new 
-        { 
-            delegatorId = delegation.DelegatorId,
-            delegateId = delegation.DelegateId,
-            scope = delegation.Scope,
-            reason = delegation.Reason
-        }
-    );
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Audit write failed (non-critical): {ex.Message}");
-}
+        await _auditService.LogAsync(
+            eventType: "DELEGATION_DELETED",
+            actorId: userId,
+            actorLabel: $"User {userId}",
+            outcome: "SUCCESS",
+            targetType: "Delegation",
+            targetId: delegation.Id.ToString(),
+            changes: new
+            {
+                delegatorId = delegation.DelegatorId,
+                delegateId = delegation.DelegateId,
+                scope = delegation.Scope,
+                reason = delegation.Reason
+            }
+        );
 
         return await _delegationRepository.DeleteAsync(id);
     }
@@ -235,5 +213,30 @@ catch (Exception ex)
     public Task<bool> IsActiveDelegateAsync(int delegateId)
     {
         return _delegationRepository.IsActiveDelegateAsync(delegateId);
+    }
+
+    private async Task EnsureNoOverlappingDelegationAsync(
+        int delegatorId, string scope, DateTime startUtc, DateTime? endUtc, int? excludeId)
+    {
+        var existing = await _delegationRepository.GetByDelegatorAsync(delegatorId);
+        var conflict = existing.FirstOrDefault(d =>
+            d.IsActive
+            && (!excludeId.HasValue || d.Id != excludeId.Value)
+            && ScopesConflict(d.Scope, scope)
+            && DateRangesOverlap(d.StartDate, d.EndDate, startUtc, endUtc));
+
+        if (conflict != null)
+            throw new InvalidOperationException(
+                $"This window overlaps an existing {conflict.Scope} delegation (id {conflict.Id})");
+    }
+
+    internal static bool ScopesConflict(string a, string b) =>
+        a == "ALL" || b == "ALL" || a == b;
+
+    internal static bool DateRangesOverlap(DateTime startA, DateTime? endA, DateTime startB, DateTime? endB)
+    {
+        var endAVal = endA ?? DateTime.MaxValue;
+        var endBVal = endB ?? DateTime.MaxValue;
+        return startA <= endBVal && startB <= endAVal;
     }
 }

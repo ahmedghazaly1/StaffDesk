@@ -107,9 +107,21 @@ public class ApprovalRepository : IApprovalRepository
 
     public async Task<IEnumerable<ApprovalStep>> GetPendingStepsForApproverAsync(int approverId)
     {
+        var now = DateTime.UtcNow;
+        var coveredApproverIds = await _context.Delegations
+            .Where(d => d.DelegateId == approverId
+                        && d.IsActive
+                        && d.StartDate <= now
+                        && (!d.EndDate.HasValue || d.EndDate.Value >= now)
+                        && (d.Scope == "ALL" || d.Scope == "APPROVALS"))
+            .Select(d => d.DelegatorId)
+            .ToListAsync();
+
         return await _context.ApprovalSteps
             .Include(s => s.Task)
-            .Where(s => s.ApproverId == approverId && s.State == "PENDING")
+            .Where(s => s.State == "PENDING" &&
+                        (s.ApproverId == approverId
+                         || (s.ApproverId.HasValue && coveredApproverIds.Contains(s.ApproverId.Value))))
             .OrderBy(s => s.CreatedAt)
             .ToListAsync();
     }

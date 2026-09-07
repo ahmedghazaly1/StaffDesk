@@ -18,6 +18,7 @@ public class TaskService : ITaskService
     private readonly IClosureRepository _closureRepository;
     private readonly ILeaveService _leaveService;
     private readonly ITimesheetService _timesheetService;
+    private readonly IDelegationService _delegationService;
 
     private static readonly string[] ValidReworkCategories =
         { "incomplete", "defective", "misunderstood", "changed", "quality" };
@@ -50,7 +51,8 @@ public class TaskService : ITaskService
         ISlaService slaService,
         IClosureRepository closureRepository,
         ILeaveService leaveService,
-        ITimesheetService timesheetService)
+        ITimesheetService timesheetService,
+        IDelegationService delegationService)
     {
         _taskRepository = taskRepository;
         _employeeRepository = employeeRepository;
@@ -62,6 +64,7 @@ public class TaskService : ITaskService
         _closureRepository = closureRepository;
         _leaveService = leaveService;
         _timesheetService = timesheetService;
+        _delegationService = delegationService;
     }
 
     // ============================================
@@ -1219,7 +1222,7 @@ public class TaskService : ITaskService
         if (task == null)
             throw new TaskDomainException(TaskErrorCodes.NotFound, "Task not found", 404);
 
-        if (task.AssigneeId != userId)
+        if (task.AssigneeId != userId && !await IsActingAsAssigneeAsync(task, userId))
             throw new TaskDomainException(TaskErrorCodes.Forbidden, "You can only log time on tasks assigned to you", 403);
 
         // A caller sending a date-only value (e.g. "2026-09-03") binds to DateTimeKind.Unspecified;
@@ -1474,6 +1477,7 @@ public class TaskService : ITaskService
         if (task.DepartmentId == user.DepartmentId) return true;
         if (task.CreatedById == userId) return true;
         if (task.AssigneeId == userId) return true;
+        if (await IsActingAsAssigneeAsync(task, userId)) return true;
 
         var directReports = await _employeeRepository.GetDirectReportsAsync(userId);
         if (directReports.Any(e => e.Id == task.AssigneeId)) return true;
@@ -1494,6 +1498,7 @@ public class TaskService : ITaskService
 
         if (task.CreatedById == userId) return true;
         if (task.AssigneeId == userId) return true;
+        if (await IsActingAsAssigneeAsync(task, userId)) return true;
 
         var dept = await _departmentRepository.GetByIdAsync(task.DepartmentId);
         if (dept?.ManagerId == userId) return true;
@@ -1537,7 +1542,7 @@ public class TaskService : ITaskService
         var dept = await _departmentRepository.GetByIdAsync(task.DepartmentId);
         if (dept?.ManagerId == userId) return true;
 
-        var isAssignee = task.AssigneeId == userId;
+        var isAssignee = await IsActingAsAssigneeAsync(task, userId);
         var isCreator = task.CreatedById == userId;
 
         switch (task.Status, newStatus)
@@ -1681,6 +1686,13 @@ public class TaskService : ITaskService
                 taskId
             );
         }
+    }
+
+    private async Task<bool> IsActingAsAssigneeAsync(WorkTask task, int userId)
+    {
+        if (task.AssigneeId == userId) return true;
+        if (!task.AssigneeId.HasValue) return false;
+        return await _delegationService.IsDelegateForDelegatorAsync(userId, task.AssigneeId.Value, "TASKS");
     }
 
     // WC-13: shared "may act as reviewer/approver authority" check - department manager or Admin.
