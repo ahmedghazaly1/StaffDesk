@@ -214,26 +214,6 @@
                 <button id="btn-new-department" class="btn-primary" onclick="showCreateDepartment()" data-i18n="action.newDepartment" style="display:none;">+ New Department</button>
             </div>
             <div id="department-list" class="card-grid"></div>
-
-            <div id="edit-department-form" class="form-card" style="display:none;">
-                <h3 data-i18n="form.editDepartment">Edit Department</h3>
-                <form onsubmit="updateDepartment(event)">
-                    <input type="hidden" id="edit-dept-id" />
-                    <div class="form-group">
-                        <label data-i18n="label.name">Name</label>
-                        <input type="text" id="edit-dept-name" required />
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="label.location">Location</label>
-                        <input type="text" id="edit-dept-location" required />
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" data-i18n="common.update">Update</button>
-                        <button type="button" class="btn-secondary" onclick="hideEditDepartment()" data-i18n="common.cancel">Cancel</button>
-                    </div>
-                </form>
-                <div id="edit-dept-error" class="error" style="display:none;"></div>
-            </div>
         </section>
 
         <!-- ========================================== -->
@@ -1852,6 +1832,31 @@
             </div>
         </div>
 
+        <div id="edit-department-modal" class="modal-overlay" onclick="if(event.target===this)hideEditDepartment()">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 data-i18n="form.editDepartment">Edit Department</h2>
+                    <button type="button" class="modal-close" onclick="hideEditDepartment()" aria-label="Close">&times;</button>
+                </div>
+                <form onsubmit="updateDepartment(event)">
+                    <input type="hidden" id="edit-dept-id" />
+                    <div class="form-group">
+                        <label data-i18n="label.name">Name</label>
+                        <input type="text" id="edit-dept-name" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.location">Location</label>
+                        <input type="text" id="edit-dept-location" required />
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.update">Update</button>
+                        <button type="button" class="btn-secondary" onclick="hideEditDepartment()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="edit-dept-error" class="error" style="display:none;"></div>
+            </div>
+        </div>
+
         <!-- ========================================== -->
         <!-- CREATE / EDIT TASK MODALS -->
         <!-- ========================================== -->
@@ -1991,7 +1996,7 @@
 
     <!-- Feature modules -->
     <script src="dashboard.js?v=2"></script>
-    <script src="departments.js?v=5"></script>
+    <script src="departments.js?v=6"></script>
     <script src="employees.js?v=4"></script>
     <script src="levels.js?v=3"></script>
     <script src="tasks.js?v=5"></script>

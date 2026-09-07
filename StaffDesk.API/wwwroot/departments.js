@@ -97,16 +97,23 @@ async function createDepartment(event) {
 // ============================================
 
 function showEditDepartment(id, name, location) {
+    if (!isAdmin()) return;
+    const modal = document.getElementById('edit-department-modal');
+    if (!modal) return;
     document.getElementById('edit-dept-id').value = id;
     document.getElementById('edit-dept-name').value = name;
     document.getElementById('edit-dept-location').value = location;
-    document.getElementById('edit-department-form').style.display = 'block';
-    document.getElementById('edit-dept-error').style.display = 'none';
-    document.getElementById('edit-dept-name').focus();
+    const error = document.getElementById('edit-dept-error');
+    if (error) error.style.display = 'none';
+    modal.classList.add('active');
+    document.getElementById('edit-dept-name')?.focus();
 }
 
 function hideEditDepartment() {
-    document.getElementById('edit-department-form').style.display = 'none';
+    const modal = document.getElementById('edit-department-modal');
+    if (modal) modal.classList.remove('active');
+    const error = document.getElementById('edit-dept-error');
+    if (error) error.style.display = 'none';
 }
 
 async function updateDepartment(event) {
