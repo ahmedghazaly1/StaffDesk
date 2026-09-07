@@ -133,8 +133,6 @@ public static class DbSeeder
     // ============================================
     public static void SeedUsers(AppDbContext context)
     {
-        if (context.Users.Any()) return;
-
         var employeeByName = context.Employees.ToDictionary(e => e.FullName, e => e.Id);
 
         var accounts = new (string Username, string Password, string Email, string Role, string EmployeeName)[]
@@ -142,6 +140,7 @@ public static class DbSeeder
             ("admin", "admin123", "admin@staffdesk.com", User.Roles.Admin, "David Wilson"),
             ("manager", "manager123", "manager@staffdesk.com", User.Roles.Manager, "Michael Chen"),
             ("member", "member123", "member@staffdesk.com", User.Roles.Member, "Ahmed Ghazaly"),
+            ("member2", "member123", "member2@staffdesk.com", User.Roles.Member, "Omar Hassan"),
             ("auditor", "auditor123", "auditor@staffdesk.com", User.Roles.Auditor, "Laura Robinson"),
             ("hr", "hr123", "hr@staffdesk.com", User.Roles.HrAdmin, "Patricia Moore"),
             ("deptmanager", "dept123", "dept.manager@staffdesk.com", User.Roles.Manager, "Emily Davis"),
@@ -149,17 +148,23 @@ public static class DbSeeder
             ("intern", "intern123", "intern@staffdesk.com", User.Roles.Member, "Nora Ibrahim")
         };
 
-        var users = accounts.Select(a => new User
-        {
-            Username = a.Username,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(a.Password),
-            Email = a.Email,
-            Role = a.Role,
-            EmployeeId = employeeByName.GetValueOrDefault(a.EmployeeName),
-            CreatedAt = DateTime.UtcNow
-        });
+        var existing = context.Users.Select(u => u.Username).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var toAdd = accounts
+            .Where(a => !existing.Contains(a.Username))
+            .Select(a => new User
+            {
+                Username = a.Username,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(a.Password),
+                Email = a.Email,
+                Role = a.Role,
+                EmployeeId = employeeByName.GetValueOrDefault(a.EmployeeName),
+                CreatedAt = DateTime.UtcNow
+            })
+            .ToList();
 
-        context.Users.AddRange(users);
+        if (toAdd.Count == 0) return;
+
+        context.Users.AddRange(toAdd);
         context.SaveChanges();
     }
 
