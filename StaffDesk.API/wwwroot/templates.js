@@ -283,13 +283,21 @@ async function createRecurrenceRule(templateId) {
     const startVal = document.getElementById('template-rule-start').value;
     const endVal = document.getElementById('template-rule-end').value;
 
+    // date inputs yield "YYYY-MM-DD"; older datetime-local yields "YYYY-MM-DDTHH:mm".
+    // Always send UTC midnight calendar dates so ASP.NET can bind StartDate/EndDate.
+    const toUtcDate = (val) => {
+        if (!val) return null;
+        const day = val.includes('T') ? val.slice(0, 10) : val;
+        return `${day}T00:00:00.000Z`;
+    };
+
     const body = {
         templateId,
         frequency,
         daysOfWeek: frequency === 'WEEKLY' ? document.getElementById('template-days-of-week').value : null,
         dayOfMonth: frequency === 'MONTHLY' ? String(document.getElementById('template-day-of-month').value) : null,
-        startDate: startVal ? `${startVal}T00:00:00.000Z` : `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`,
-        endDate: endVal ? `${endVal}T00:00:00.000Z` : null,
+        startDate: toUtcDate(startVal) || `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`,
+        endDate: toUtcDate(endVal),
         timezone: 'UTC',
         generateOnlyWhenPreviousComplete: false,
         isPaused: false,
