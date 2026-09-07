@@ -288,8 +288,8 @@ async function createRecurrenceRule(templateId) {
         frequency,
         daysOfWeek: frequency === 'WEEKLY' ? document.getElementById('template-days-of-week').value : null,
         dayOfMonth: frequency === 'MONTHLY' ? String(document.getElementById('template-day-of-month').value) : null,
-        startDate: startVal ? new Date(startVal).toISOString() : new Date().toISOString(),
-        endDate: endVal ? new Date(endVal).toISOString() : null,
+        startDate: startVal ? `${startVal}T00:00:00.000Z` : `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`,
+        endDate: endVal ? `${endVal}T00:00:00.000Z` : null,
         timezone: 'UTC',
         generateOnlyWhenPreviousComplete: false,
         isPaused: false,
@@ -357,7 +357,7 @@ async function generateOccurrences() {
     }
     try {
         const result = await fetchApi('/recurrence/generate', { method: 'POST', body: '{}' });
-        showError(`✅ Generated ${result.generated} task(s). ${result.message || ''}`);
+        showError(`✅ Created ${result.generated} task(s) for the template assignee. ${result.message || ''}`);
         loadTemplates();
     } catch (error) {
         showError('❌ ' + error.message);

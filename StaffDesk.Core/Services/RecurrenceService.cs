@@ -273,19 +273,26 @@ public class RecurrenceService : IRecurrenceService
         }
 
         if (!nextDate.HasValue) break;
-        if (rule.EndDate.HasValue && nextDate.Value > rule.EndDate.Value) break;
+        var occurrenceDay = DateTime.SpecifyKind(nextDate.Value.Date, DateTimeKind.Utc);
+        if (rule.EndDate.HasValue && occurrenceDay.Date > rule.EndDate.Value.Date) break;
 
-        nextDate = ApplyNonWorkingDayPolicy(nextDate.Value, rule.NonWorkingDayPolicy);
+        nextDate = ApplyNonWorkingDayPolicy(occurrenceDay, rule.NonWorkingDayPolicy);
         if (!nextDate.HasValue) { currentDate = currentDate.AddDays(1); continue; }
 
-        // Check if occurrence already exists
-        var exists = await _recurrenceRepository.OccurrenceExistsForDateAsync(ruleId, nextDate.Value);
+        occurrenceDay = DateTime.SpecifyKind(nextDate.Value.Date, DateTimeKind.Utc);
+        if (rule.EndDate.HasValue && occurrenceDay.Date > rule.EndDate.Value.Date)
+        {
+            currentDate = currentDate.AddDays(1);
+            continue;
+        }
+
+        var exists = await _recurrenceRepository.OccurrenceExistsForDateAsync(ruleId, occurrenceDay);
         if (!exists)
         {
             var occurrence = new RecurrenceOccurrence
             {
                 RuleId = ruleId,
-                OccurrenceDate = nextDate.Value,
+                OccurrenceDate = occurrenceDay,
                 State = "PENDING",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -294,7 +301,7 @@ public class RecurrenceService : IRecurrenceService
             created++;
         }
 
-        currentDate = nextDate.Value;
+        currentDate = occurrenceDay;
     }
 
     // Update the rule's next generation date
@@ -304,18 +311,15 @@ public class RecurrenceService : IRecurrenceService
 
     return created;
 }
-    public async Task<int> GenerateOccurrencesAsync()
+    public async Task<int> GenerateOccurrencesAsync(int actorId)
     {
         var rules = await _recurrenceRepository.GetActiveRulesAsync();
-        var totalGenerated = 0;
 
         foreach (var rule in rules)
-        {
-            var generated = await CreateOccurrencesForRuleAsync(rule.Id);
-            totalGenerated += generated;
-        }
+            await CreateOccurrencesForRuleAsync(rule.Id);
 
-        return totalGenerated;
+        // Generate Now should create real tasks (assigned from the template), not only date slots.
+        return await MaterializePendingOccurrencesAsync(actorId);
     }
 
     public async Task<IEnumerable<RecurrenceOccurrence>> GetPendingOccurrencesAsync()

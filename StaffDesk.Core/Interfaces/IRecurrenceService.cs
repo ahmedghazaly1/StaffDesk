@@ -54,7 +54,7 @@ public interface IRecurrenceService
     // ============================================
     // Occurrence Generation (RC-3, RC-5)
     // ============================================
-    Task<int> GenerateOccurrencesAsync();
+    Task<int> GenerateOccurrencesAsync(int actorId);
     Task<IEnumerable<RecurrenceOccurrence>> GetPendingOccurrencesAsync();
     Task<IEnumerable<RecurrenceOccurrence>> GetOccurrencesByRuleIdAsync(int ruleId);
 

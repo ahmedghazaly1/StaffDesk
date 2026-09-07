@@ -309,8 +309,8 @@ public class RecurrenceController : ApiControllerBase
         if (employeeId == null)
             return NoEmployeeLinkError();
 
-        var generated = await _recurrenceService.GenerateOccurrencesAsync();
-        return Ok(new { generated, message = $"Generated {generated} occurrences" });
+        var generated = await _recurrenceService.GenerateOccurrencesAsync(employeeId.Value);
+        return Ok(new { generated, message = $"Created {generated} task(s) from recurrence" });
     }
 
     // GET /v1/recurrence/rules/{ruleId}/occurrences - Get occurrences for a rule

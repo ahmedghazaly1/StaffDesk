@@ -109,15 +109,15 @@ public class RecurrenceRepository : IRecurrenceRepository
 
     public async Task<IEnumerable<RecurrenceRule>> GetActiveRulesAsync()
     {
-        // Compare on UTC calendar days so an end date stored as midnight (e.g. 9/13 00:00)
-        // stays active for the whole of that day, not only at 00:00:00.
-        var today = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
-        var tomorrow = today.AddDays(1);
+        // Compare by date only (UTC), not exact time-of-day: a rule whose
+        // start date is "today" should be active for all of today on the
+        // server, regardless of what clock time was picked in the form.
+        var today = DateTime.UtcNow.Date;
         return await _context.RecurrenceRules
             .Include(r => r.Template)
             .Where(r => !r.IsPaused &&
-                        r.StartDate < tomorrow &&
-                        (!r.EndDate.HasValue || r.EndDate.Value >= today))
+                        r.StartDate.Date <= today &&
+                        (!r.EndDate.HasValue || r.EndDate.Value.Date >= today))
             .OrderBy(r => r.NextGenerationAt)
             .ToListAsync();
     }
@@ -227,10 +227,8 @@ public class RecurrenceRepository : IRecurrenceRepository
 
     public async Task<bool> OccurrenceExistsForDateAsync(int ruleId, DateTime date)
     {
-        var day = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
-        var next = day.AddDays(1);
         return await _context.RecurrenceOccurrences
-            .AnyAsync(o => o.RuleId == ruleId && o.OccurrenceDate >= day && o.OccurrenceDate < next);
+            .AnyAsync(o => o.RuleId == ruleId && o.OccurrenceDate.Date == date.Date);
     }
 
     public async Task<RecurrenceOccurrence?> TryClaimPendingOccurrenceAsync(int occurrenceId)

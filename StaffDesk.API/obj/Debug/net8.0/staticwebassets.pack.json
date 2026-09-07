@@ -1,115 +1,115 @@
 {
   "Files": [
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\analytics.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\analytics.js",
       "PackagePath": "staticwebassets\\analytics.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\app.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\app.js",
       "PackagePath": "staticwebassets\\app.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\approvals.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\approvals.js",
       "PackagePath": "staticwebassets\\approvals.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\audit.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\audit.js",
       "PackagePath": "staticwebassets\\audit.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\calendars.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\calendars.js",
       "PackagePath": "staticwebassets\\calendars.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\capacity.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\capacity.js",
       "PackagePath": "staticwebassets\\capacity.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\dashboard.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\dashboard.js",
       "PackagePath": "staticwebassets\\dashboard.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\delegations.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\delegations.js",
       "PackagePath": "staticwebassets\\delegations.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\departments.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\departments.js",
       "PackagePath": "staticwebassets\\departments.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\employees.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\employees.js",
       "PackagePath": "staticwebassets\\employees.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\i18n.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\i18n.js",
       "PackagePath": "staticwebassets\\i18n.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\index.html",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\index.html",
       "PackagePath": "staticwebassets\\index.html"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\leave.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\leave.js",
       "PackagePath": "staticwebassets\\leave.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\levels.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\levels.js",
       "PackagePath": "staticwebassets\\levels.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\login.html",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\login.html",
       "PackagePath": "staticwebassets\\login.html"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\notifications.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\notifications.js",
       "PackagePath": "staticwebassets\\notifications.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\operations.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\operations.js",
       "PackagePath": "staticwebassets\\operations.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\performance.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\performance.js",
       "PackagePath": "staticwebassets\\performance.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\platform.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\platform.js",
       "PackagePath": "staticwebassets\\platform.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\profile.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\profile.js",
       "PackagePath": "staticwebassets\\profile.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\requests.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\requests.js",
       "PackagePath": "staticwebassets\\requests.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\security.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\security.js",
       "PackagePath": "staticwebassets\\security.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\sla.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\sla.js",
       "PackagePath": "staticwebassets\\sla.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\style.css",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\style.css",
       "PackagePath": "staticwebassets\\style.css"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\task-detail.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\task-detail.js",
       "PackagePath": "staticwebassets\\task-detail.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\tasks.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\tasks.js",
       "PackagePath": "staticwebassets\\tasks.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\templates.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\templates.js",
       "PackagePath": "staticwebassets\\templates.js"
     },
     {
-      "Id": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\timesheets.js",
+      "Id": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\timesheets.js",
       "PackagePath": "staticwebassets\\timesheets.js"
     },
     {
