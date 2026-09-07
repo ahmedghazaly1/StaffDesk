@@ -521,13 +521,13 @@ public class TaskRepository : ITaskRepository
                 "Cannot edit time entries on a SUBMITTED or APPROVED timesheet (CP-15).",
                 409);
 
-        // Also block if week is approved/submitted but entry wasn't linked (fallback by WorkedOn)
+        // Also block if month is approved/submitted but entry wasn't linked (fallback by WorkedOn)
         if (entry.TimesheetId == null)
         {
-            var weekStart = TimesheetRepository.MondayOf(DateOnly.FromDateTime(entry.WorkedOn.ToUniversalTime()));
+            var monthStart = TimesheetRepository.MonthStartOf(DateOnly.FromDateTime(entry.WorkedOn.ToUniversalTime()));
             var locked = await _context.Timesheets.AnyAsync(t =>
                 t.EmployeeId == employeeId
-                && t.WeekStart == weekStart
+                && t.WeekStart == monthStart
                 && (t.State == TimesheetStates.Approved || t.State == TimesheetStates.Submitted));
             if (locked)
                 throw new StaffDesk.Core.Exceptions.TaskDomainException(

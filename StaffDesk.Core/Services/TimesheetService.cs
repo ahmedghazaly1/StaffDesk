@@ -32,10 +32,10 @@ public class TimesheetService : ITimesheetService
 
     public async Task EnsureTimeEntryEditableAsync(int employeeId, DateOnly workedOn)
     {
-        var weekStart = TimesheetRepositoryMonday(workedOn);
+        var monthStart = MonthStartOf(workedOn);
         // Look up without creating — only block if an APPROVED sheet already exists
         var sheets = await _timesheets.GetForEmployeeAsync(employeeId);
-        var sheet = sheets.FirstOrDefault(s => s.WeekStart == weekStart);
+        var sheet = sheets.FirstOrDefault(s => s.WeekStart == monthStart);
         if (sheet != null && sheet.State is TimesheetStates.Approved or TimesheetStates.Submitted)
             throw new TaskDomainException(TaskErrorCodes.ValidationError,
                 "Cannot edit time entries on a SUBMITTED or APPROVED timesheet (CP-15).", 409);
@@ -169,19 +169,20 @@ public class TimesheetService : ITimesheetService
         throw new TaskDomainException(TaskErrorCodes.Forbidden, "Not permitted to view this timesheet", 403);
     }
 
-    private static DateOnly TimesheetRepositoryMonday(DateOnly date)
-    {
-        var diff = ((int)date.DayOfWeek + 6) % 7;
-        return date.AddDays(-diff);
-    }
+    private static DateOnly MonthStartOf(DateOnly date) => new(date.Year, date.Month, 1);
+
+    private static DateOnly MonthEndOf(DateOnly date) =>
+        new(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
 
     private static object MapSheet(Timesheet sheet) => new
     {
         sheet.Id,
         sheet.EmployeeId,
         employeeName = sheet.Employee?.FullName,
-        weekStart = sheet.WeekStart,
-        weekEnd = sheet.WeekStart.AddDays(6),
+        weekStart = sheet.WeekStart, // period start (1st of month)
+        weekEnd = MonthEndOf(sheet.WeekStart),
+        monthStart = sheet.WeekStart,
+        monthEnd = MonthEndOf(sheet.WeekStart),
         sheet.State,
         sheet.SubmittedAt,
         sheet.ReviewedById,

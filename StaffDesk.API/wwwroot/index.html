@@ -135,7 +135,7 @@
                         </button>
                         <button id="nav-timesheets" class="nav-item" role="menuitem" onclick="showTimesheets()">
                             <span class="nav-item-icon" aria-hidden="true">⏱️</span>
-                            <span class="nav-item-text"><strong data-i18n="nav.timesheets">Timesheets</strong><small data-i18n="nav.timesheets.desc">Weekly submission and review</small></span>
+                            <span class="nav-item-text"><strong data-i18n="nav.timesheets">Timesheets</strong><small data-i18n="nav.timesheets.desc">Monthly submission and review</small></span>
                         </button>
                     </div>
                 </li>
@@ -879,11 +879,11 @@
                 <h2 data-i18n="page.timesheets">Timesheets</h2>
                 <div class="toolbar">
                     <div class="toolbar-field">
-                        <label for="timesheet-week" data-i18n="ui.week_start">Week start</label>
-                        <input type="date" id="timesheet-week" />
+                        <label for="timesheet-week" data-i18n="ui.month_start">Month start</label>
+                        <input type="date" id="timesheet-week" onchange="selectedMonthStart()" />
                     </div>
-                    <button class="btn-secondary" onclick="loadTimesheetWeek()" data-i18n="ui.load_week">Load week</button>
-                    <button class="btn-primary" onclick="submitTimesheetWeek()" data-i18n="ui.submit_week">Submit week</button>
+                    <button class="btn-secondary" onclick="loadTimesheetWeek()" data-i18n="ui.load_month">Load month</button>
+                    <button class="btn-primary" onclick="submitTimesheetWeek()" data-i18n="ui.submit_month">Submit month</button>
                 </div>
             </div>
             <div id="timesheet-week-summary"></div>
@@ -1995,7 +1995,7 @@
     <script src="notifications.js?v=1"></script>
     <script src="leave.js?v=1"></script>
     <script src="capacity.js?v=1"></script>
-    <script src="timesheets.js?v=1"></script>
+    <script src="timesheets.js?v=2"></script>
     <script src="calendars.js?v=1"></script>
     <script src="analytics.js?v=3"></script>
     <script src="performance.js?v=1"></script>

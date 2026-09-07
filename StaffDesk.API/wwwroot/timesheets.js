@@ -1,12 +1,19 @@
 // ============================================
-// Timesheets: weekly entry, submission, and manager review.
+// Timesheets: monthly entry, submission, and manager review.
 // ============================================
 
-function mondayOf(dateStr) {
+function monthStartOf(dateStr) {
     const d = dateStr ? new Date(dateStr + 'T00:00:00') : new Date();
-    const day = d.getDay();
-    const diff = (day + 6) % 7;
-    d.setDate(d.getDate() - diff);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}-01`;
+}
+
+function monthEndOf(dateStr) {
+    const start = monthStartOf(dateStr);
+    const d = new Date(start + 'T00:00:00');
+    d.setMonth(d.getMonth() + 1);
+    d.setDate(0);
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dayNum = String(d.getDate()).padStart(2, '0');
@@ -14,7 +21,7 @@ function mondayOf(dateStr) {
 }
 
 // Rejects DateTime.MinValue, which the API can emit for sheets with no real
-// week set and which otherwise renders as a confusing "0001-01-01".
+// period set and which otherwise renders as a confusing "0001-01-01".
 function parseIsoDate(value) {
     if (!value) return null;
     const d = new Date(String(value).slice(0, 10) + 'T00:00:00');
@@ -26,11 +33,13 @@ function formatDate(value) {
     return d ? d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 }
 
-function formatWeekRange(start, end) {
+function formatMonthLabel(start, end) {
     const s = parseIsoDate(start);
-    const e = parseIsoDate(end);
     if (!s) return '—';
-    if (!e) return formatDate(start);
+    const e = parseIsoDate(end);
+    if (!e) {
+        return s.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    }
     return `${s.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} – ${formatDate(end)}`;
 }
 
@@ -52,16 +61,28 @@ function timesheetStateBadge(state) {
     return `<span class="state-badge ${classes[s] || 'state-open'}">${escapeHtml(s || 'UNKNOWN')}</span>`;
 }
 
+function selectedMonthStart() {
+    const input = document.getElementById('timesheet-week');
+    const monthStart = monthStartOf(input.value);
+    input.value = monthStart;
+    input.max = monthEndOf();
+    return monthStart;
+}
+
 async function prepareTimesheets() {
-    document.getElementById('timesheet-week').value = mondayOf();
+    const input = document.getElementById('timesheet-week');
+    if (!input.value) input.value = monthStartOf();
+    input.max = monthEndOf();
+    selectedMonthStart();
     await Promise.all([loadTimesheetWeek(), loadMyTimesheets(), loadPendingTimesheets()]);
 }
 
 async function loadTimesheetWeek() {
-    const weekStart = mondayOf(document.getElementById('timesheet-week').value);
-    document.getElementById('timesheet-week').value = weekStart;
-    const sheet = await fetchApi('/timesheets/week', {}, { weekStart });
+    const monthStart = selectedMonthStart();
+    const sheet = await fetchApi('/timesheets/week', {}, { weekStart: monthStart });
     const entries = sheet?.entries || [];
+    const rangeStart = sheet?.monthStart || sheet?.weekStart || monthStart;
+    const rangeEnd = sheet?.monthEnd || sheet?.weekEnd || monthEndOf(monthStart);
 
     document.getElementById('timesheet-week-summary').innerHTML = `
         <div class="week-summary">
@@ -70,8 +91,8 @@ async function loadTimesheetWeek() {
                 ${timesheetStateBadge(sheet?.state)}
             </div>
             <div class="week-summary-item">
-                <span class="week-summary-label">Week</span>
-                <span class="week-summary-value">${formatWeekRange(sheet?.weekStart || weekStart, sheet?.weekEnd)}</span>
+                <span class="week-summary-label">Month</span>
+                <span class="week-summary-value">${formatMonthLabel(rangeStart, rangeEnd)}</span>
             </div>
             <div class="week-summary-item">
                 <span class="week-summary-label">Total logged</span>
@@ -88,15 +109,15 @@ async function loadTimesheetWeek() {
         <tbody>${entries.length ? entries.map(e => `<tr>
             <td>#${e.id}</td><td>${e.taskId}</td><td>${formatMinutes(e.minutes)}</td>
             <td>${formatDate(e.workedOn)}</td><td>${escapeHtml(e.note || '—')}</td>
-        </tr>`).join('') : '<tr><td colspan="5" class="empty-cell">No entries this week.</td></tr>'}</tbody></table>`;
+        </tr>`).join('') : '<tr><td colspan="5" class="empty-cell">No entries this month.</td></tr>'}</tbody></table>`;
 }
 
 async function loadMyTimesheets() {
     const rows = await fetchApi('/timesheets/mine') || [];
     document.getElementById('timesheet-mine').innerHTML = rows.length
-        ? `<table><thead><tr><th>Week</th><th>State</th><th>Total logged</th></tr></thead>
+        ? `<table><thead><tr><th>Month</th><th>State</th><th>Total logged</th></tr></thead>
            <tbody>${rows.map(s => `<tr>
-             <td>${formatDate(s.weekStart)}</td>
+             <td>${formatMonthLabel(s.monthStart || s.weekStart, s.monthEnd || s.weekEnd)}</td>
              <td>${timesheetStateBadge(s.state)}</td>
              <td>${formatMinutes(s.totalMinutes)}</td>
            </tr>`).join('')}</tbody></table>`
@@ -106,10 +127,10 @@ async function loadMyTimesheets() {
 async function loadPendingTimesheets() {
     const rows = await fetchApi('/timesheets/pending') || [];
     document.getElementById('timesheet-pending').innerHTML = rows.length
-        ? `<table><thead><tr><th>Employee</th><th>Week</th><th>State</th><th class="actions-col"></th></tr></thead>
+        ? `<table><thead><tr><th>Employee</th><th>Month</th><th>State</th><th class="actions-col"></th></tr></thead>
            <tbody>${rows.map(s => `<tr>
              <td>${escapeHtml(s.employeeName || ('#' + s.employeeId))}</td>
-             <td>${formatDate(s.weekStart)}</td>
+             <td>${formatMonthLabel(s.monthStart || s.weekStart, s.monthEnd || s.weekEnd)}</td>
              <td>${timesheetStateBadge(s.state)}</td>
              <td class="actions-col">
                <button class="btn-success btn-sm" onclick="reviewTimesheet(${s.id}, true)">Approve</button>
@@ -120,10 +141,10 @@ async function loadPendingTimesheets() {
 }
 
 async function submitTimesheetWeek() {
-    const weekStart = mondayOf(document.getElementById('timesheet-week').value);
+    const monthStart = selectedMonthStart();
     await fetchApi('/timesheets/submit', {
         method: 'POST',
-        body: JSON.stringify({ weekStart })
+        body: JSON.stringify({ weekStart: monthStart })
     });
     showError('Timesheet submitted.');
     prepareTimesheets();

@@ -10,15 +10,15 @@ public class TimesheetRepository : ITimesheetRepository
     private readonly AppDbContext _db;
     public TimesheetRepository(AppDbContext db) => _db = db;
 
-    public static DateOnly MondayOf(DateOnly date)
-    {
-        var diff = ((int)date.DayOfWeek + 6) % 7; // Monday=0
-        return date.AddDays(-diff);
-    }
+    /// <summary>Normalizes any date to the first day of its month (period start).</summary>
+    public static DateOnly MonthStartOf(DateOnly date) => new(date.Year, date.Month, 1);
+
+    public static DateOnly MonthEndOf(DateOnly date) =>
+        new(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
 
     public async Task<Timesheet> GetOrCreateOpenWeekAsync(int employeeId, DateOnly weekStart)
     {
-        weekStart = MondayOf(weekStart);
+        weekStart = MonthStartOf(weekStart);
         var existing = await _db.Timesheets
             .Include(t => t.Entries)
             .FirstOrDefaultAsync(t => t.EmployeeId == employeeId && t.WeekStart == weekStart);

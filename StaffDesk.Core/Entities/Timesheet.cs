@@ -1,13 +1,13 @@
 namespace StaffDesk.Core.Entities;
 
-/// <summary>CP-14: weekly timesheet that groups time entries for submit/approve.</summary>
+/// <summary>CP-14: monthly timesheet that groups time entries for submit/approve.</summary>
 public class Timesheet
 {
     public int Id { get; set; }
     public int EmployeeId { get; set; }
     public Employee Employee { get; set; } = null!;
 
-    /// <summary>Monday of the week (UTC date).</summary>
+    /// <summary>First day of the month period (UTC date). Column kept as WeekStart for schema compatibility.</summary>
     public DateOnly WeekStart { get; set; }
 
     /// <summary>OPEN | SUBMITTED | APPROVED | RETURNED</summary>
