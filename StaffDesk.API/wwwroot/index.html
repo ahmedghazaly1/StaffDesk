@@ -471,10 +471,14 @@
                     <option value="DONE" data-i18n="status.DONE">Done</option>
                     <option value="CANCELLED" data-i18n="status.CANCELLED">Cancelled</option>
                 </select>
-                <select id="bulk-assignee" title="Bulk assignee change">
-                    <option value="" data-i18n="filter.assignee">— Assignee —</option>
-                    <option value="unassigned" data-i18n="common.unassigned">Unassigned</option>
-                </select>
+                <div class="search-select" id="bulk-assignee-wrap">
+                    <input type="hidden" id="bulk-assignee" value="" />
+                    <input type="text" id="bulk-assignee-search" data-i18n-placeholder="filter.assignee" placeholder="— Assignee —" autocomplete="off"
+                        onfocus="openBulkAssigneeDropdown()"
+                        oninput="filterBulkAssigneeDropdown()"
+                        onkeydown="handleBulkAssigneeKeydown(event)" />
+                    <div id="bulk-assignee-dropdown" class="search-select-dropdown" style="display:none;"></div>
+                </div>
                 <label class="bulk-archive-label">
                     <input type="checkbox" id="bulk-archive" /> <span data-i18n="filter.archive">Archive</span>
                 </label>

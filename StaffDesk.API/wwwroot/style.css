@@ -1621,6 +1621,53 @@ tr:hover .empty-cell { background: transparent; }
     min-width: 140px;
 }
 
+.search-select {
+    position: relative;
+    min-width: 200px;
+}
+
+.search-select input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.search-select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 40;
+    max-height: 220px;
+    overflow-y: auto;
+    background: var(--surface, #fff);
+    border: 1px solid #bee3f8;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+.search-select-option {
+    display: block;
+    width: 100%;
+    text-align: start;
+    padding: 8px 10px;
+    border: 0;
+    background: transparent;
+    font-size: 13px;
+    color: var(--ink-700, #2d3748);
+    cursor: pointer;
+}
+
+.search-select-option:hover,
+.search-select-option.active {
+    background: #ebf8ff;
+}
+
+.search-select-empty {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #718096;
+}
+
 .bulk-archive-label {
     display: flex;
     align-items: center;

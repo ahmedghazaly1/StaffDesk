@@ -67,17 +67,116 @@ async function loadActiveEmployeesForBulk() {
     try {
         const data = await fetchApi('/employees', {}, { limit: 200 });
         activeEmployeesCache = (data?.data || []).filter(e => e.isActive);
-        const select = document.getElementById('bulk-assignee');
-        if (!select) return;
-        select.innerHTML = `<option value="">${typeof t === 'function' ? t('filter.assignee') : '— Assignee —'}</option>` +
-            `<option value="unassigned">${typeof t === 'function' ? t('common.unassigned') : 'Unassigned'}</option>` +
-            activeEmployeesCache.map(emp =>
-                `<option value="${emp.id}">${emp.fullName} (${emp.departmentName})</option>`
-            ).join('');
+        resetBulkAssigneeSelect();
     } catch (error) {
         console.error('Failed to load employees for bulk actions:', error);
     }
 }
+
+function resetBulkAssigneeSelect() {
+    const hidden = document.getElementById('bulk-assignee');
+    const search = document.getElementById('bulk-assignee-search');
+    const dropdown = document.getElementById('bulk-assignee-dropdown');
+    if (hidden) hidden.value = '';
+    if (search) search.value = '';
+    if (dropdown) {
+        dropdown.style.display = 'none';
+        dropdown.innerHTML = '';
+    }
+}
+
+function getBulkAssigneeOptions(filterText = '') {
+    const tt = typeof t === 'function' ? t : (k) => k;
+    const q = filterText.trim().toLowerCase();
+    const options = [
+        { value: 'unassigned', label: tt('common.unassigned') || 'Unassigned' },
+        ...activeEmployeesCache.map(emp => ({
+            value: String(emp.id),
+            label: `${emp.fullName} (${emp.departmentName || ''})`
+        }))
+    ];
+    if (!q) return options;
+    return options.filter(o => o.label.toLowerCase().includes(q));
+}
+
+function renderBulkAssigneeDropdown(filterText = '') {
+    const dropdown = document.getElementById('bulk-assignee-dropdown');
+    if (!dropdown) return;
+    const options = getBulkAssigneeOptions(filterText);
+    if (!options.length) {
+        dropdown.innerHTML = `<div class="search-select-empty">No matches</div>`;
+    } else {
+        dropdown.innerHTML = options.map(o =>
+            `<button type="button" class="search-select-option" data-value="${escapeHtml(o.value)}" onclick="selectBulkAssignee(this)">${escapeHtml(o.label)}</button>`
+        ).join('');
+    }
+    dropdown.style.display = 'block';
+}
+
+function openBulkAssigneeDropdown() {
+    const search = document.getElementById('bulk-assignee-search');
+    renderBulkAssigneeDropdown(search ? search.value : '');
+}
+
+function filterBulkAssigneeDropdown() {
+    const search = document.getElementById('bulk-assignee-search');
+    const hidden = document.getElementById('bulk-assignee');
+    // Typing invalidates a previous selection until user picks again
+    if (hidden) hidden.value = '';
+    renderBulkAssigneeDropdown(search ? search.value : '');
+}
+
+function selectBulkAssignee(btn) {
+    const hidden = document.getElementById('bulk-assignee');
+    const search = document.getElementById('bulk-assignee-search');
+    const dropdown = document.getElementById('bulk-assignee-dropdown');
+    if (hidden) hidden.value = btn.dataset.value || '';
+    if (search) search.value = btn.textContent || '';
+    if (dropdown) dropdown.style.display = 'none';
+}
+
+function handleBulkAssigneeKeydown(event) {
+    const dropdown = document.getElementById('bulk-assignee-dropdown');
+    if (!dropdown || dropdown.style.display === 'none') {
+        if (event.key === 'ArrowDown') {
+            openBulkAssigneeDropdown();
+            event.preventDefault();
+        }
+        return;
+    }
+    const options = Array.from(dropdown.querySelectorAll('.search-select-option'));
+    if (!options.length) return;
+    const active = dropdown.querySelector('.search-select-option.active');
+    let idx = active ? options.indexOf(active) : -1;
+
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (active) active.classList.remove('active');
+        idx = Math.min(idx + 1, options.length - 1);
+        options[idx].classList.add('active');
+        options[idx].scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (active) active.classList.remove('active');
+        idx = Math.max(idx - 1, 0);
+        options[idx].classList.add('active');
+        options[idx].scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'Enter') {
+        event.preventDefault();
+        const pick = active || options[0];
+        if (pick) selectBulkAssignee(pick);
+    } else if (event.key === 'Escape') {
+        dropdown.style.display = 'none';
+    }
+}
+
+document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('bulk-assignee-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+        const dropdown = document.getElementById('bulk-assignee-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+});
 
 function updateBulkBar() {
     const bar = document.getElementById('bulk-actions-bar');
@@ -178,7 +277,7 @@ async function applyBulkAction() {
         showError('✅ Bulk action complete — ' + results.join('; '));
         selectedTaskIds.clear();
         document.getElementById('bulk-status').value = '';
-        document.getElementById('bulk-assignee').value = '';
+        resetBulkAssigneeSelect();
         document.getElementById('bulk-archive').checked = false;
         document.getElementById('bulk-tags').value = '';
         updateBulkBar();
@@ -257,12 +356,12 @@ function renderTasks(data) {
         const checked = selectedTaskIds.has(task.id) ? 'checked' : '';
         
         html += `
-            <tr>
-                <td class="checkbox-col">
+            <tr class="task-row" onclick="showTaskDetail(${task.id})" style="cursor:pointer;">
+                <td class="checkbox-col" onclick="event.stopPropagation()">
                     <input type="checkbox" class="task-select-cb" data-task-id="${task.id}" ${checked} onchange="toggleTaskSelection(${task.id}, this.checked)" />
                 </td>
-                <td><strong>${task.key}</strong></td>
-                <td>${task.title}</td>
+                <td><strong>${escapeHtml(task.key)}</strong></td>
+                <td>${escapeHtml(task.title)}</td>
                 <td><span class="status-badge ${statusClass}">${typeof translateStatus === 'function' ? translateStatus(task.status) : task.status.replace('_', ' ')}</span></td>
                 <td><span class="priority-badge ${priorityClass}">${typeof translatePriority === 'function' ? translatePriority(task.priority) : task.priority}</span></td>
                 <td>${slaBadge}</td>
@@ -271,9 +370,9 @@ function renderTasks(data) {
                 <td>${task.assigneeName || tt('common.unassigned')}</td>
                 <td>${task.departmentName}</td>
                 <td>${task.dueAt ? new Date(task.dueAt).toLocaleDateString(typeof getStoredLang === 'function' && getStoredLang() === 'ar' ? 'ar' : 'en') : tt('common.na')}</td>
-                <td>
-                    <button class="btn-secondary btn-sm" onclick="showTaskDetail(${task.id})">👁️ ${tt('common.view')}</button>
+                <td onclick="event.stopPropagation()">
                     <button class="btn-secondary btn-sm" onclick="showEditTask(${task.id})">✏️ ${tt('common.edit')}</button>
+                    <button class="btn-danger btn-sm" onclick="deleteTask(${task.id})">🗑️ ${tt('filter.delete')}</button>
                 </td>
             </tr>
         `;
@@ -303,6 +402,22 @@ function taskPreviousPage() {
 function taskNextPage() {
     taskCurrentPage++;
     loadTasks();
+}
+
+async function deleteTask(taskId) {
+    const task = currentTasksPage.find(t => t.id === taskId);
+    const label = task?.title || task?.key || `#${taskId}`;
+    if (!confirm(`Delete task "${label}"? This cannot be undone.`)) return;
+
+    try {
+        await fetchApi(`/tasks/${taskId}`, { method: 'DELETE' });
+        selectedTaskIds.delete(taskId);
+        updateBulkBar();
+        loadTasks();
+        showError('✅ Task deleted successfully!');
+    } catch (error) {
+        showError('❌ ' + error.message);
+    }
 }
 
 function applyTaskFilters() {
