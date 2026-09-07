@@ -1,5 +1,5 @@
 // ============================================
-// Task templates and recurrence rules, including occurrence generation.
+// Scheduled tasks (templates) and recurrence rules, including occurrence generation.
 // ============================================
 
 let templatesCache = [];
@@ -18,7 +18,7 @@ function toggleCreateTemplateForm() {
 
 function resetTemplateForm() {
     document.getElementById('template-edit-id').value = '';
-    document.getElementById('template-form-title').textContent = 'Create Template';
+    document.getElementById('template-form-title').textContent = 'Create Scheduled Task';
     document.getElementById('template-name').value = '';
     document.getElementById('template-description').value = '';
     document.getElementById('template-title-pattern').value = '';
@@ -91,13 +91,13 @@ async function loadTemplates() {
         renderOccurrencesTable(occContainer, pendingOcc || []);
     } catch (error) {
         console.error('Failed to load templates:', error);
-        listContainer.innerHTML = '<p class="empty-state">Could not load templates.</p>';
+        listContainer.innerHTML = '<p class="empty-state">Could not load scheduled tasks.</p>';
     }
 }
 
 function renderTemplatesTable(container, templates) {
     if (!templates.length) {
-        container.innerHTML = '<p class="empty-state">No templates yet. Create one above.</p>';
+        container.innerHTML = '<p class="empty-state">No scheduled tasks yet. Create one above.</p>';
         return;
     }
 
@@ -148,7 +148,7 @@ function renderRecurrenceRulesTable(container, rules) {
         <table>
             <thead>
                 <tr>
-                    <th>Template</th>
+                    <th>Scheduled Task</th>
                     <th>Frequency</th>
                     <th>Schedule</th>
                     <th>Start</th>
@@ -269,7 +269,7 @@ async function saveTemplate(event) {
 
         toggleCreateTemplateForm();
         loadTemplates();
-        showError(`✅ Template ${editId ? 'updated' : 'created'}!`);
+        showError(`✅ Scheduled task ${editId ? 'updated' : 'created'}!`);
     } catch (error) {
         document.getElementById('template-error').textContent = error.message;
         document.getElementById('template-error').style.display = 'block';
@@ -311,7 +311,7 @@ async function editTemplate(id) {
         await loadTemplateDropdowns();
 
         document.getElementById('template-edit-id').value = template.id;
-        document.getElementById('template-form-title').textContent = 'Edit Template';
+        document.getElementById('template-form-title').textContent = 'Edit Scheduled Task';
         document.getElementById('template-name').value = template.name;
         document.getElementById('template-description').value = template.description || '';
         document.getElementById('template-title-pattern').value = template.titlePattern;
@@ -324,16 +324,16 @@ async function editTemplate(id) {
         document.getElementById('template-checklist').value = (template.defaultChecklistItems || []).join(', ');
         document.getElementById('template-acceptance').value = (template.defaultAcceptanceCriteria || []).join(', ');
     } catch (error) {
-        showError('Failed to load template for editing');
+        showError('Failed to load scheduled task for editing');
     }
 }
 
 async function deleteTemplate(id, name) {
-    if (!confirm(`Delete template "${name}"?`)) return;
+    if (!confirm(`Delete scheduled task "${name}"?`)) return;
     try {
         await fetchApi(`/recurrence/templates/${id}`, { method: 'DELETE' });
         loadTemplates();
-        showError('✅ Template deleted.');
+        showError('✅ Scheduled task deleted.');
     } catch (error) {
         showError('❌ ' + error.message);
     }
@@ -357,7 +357,7 @@ async function generateOccurrences() {
     }
     try {
         const result = await fetchApi('/recurrence/generate', { method: 'POST', body: '{}' });
-        showError(`✅ Created ${result.generated} task(s) for the template assignee. ${result.message || ''}`);
+        showError(`✅ Created ${result.generated} task(s) for the scheduled task assignee. ${result.message || ''}`);
         loadTemplates();
     } catch (error) {
         showError('❌ ' + error.message);

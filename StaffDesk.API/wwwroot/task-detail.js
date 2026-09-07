@@ -460,6 +460,7 @@ async function loadTaskDetailExtensions(taskId, task) {
             <button class="btn-primary btn-sm" onclick="addComment(${taskId})">Post</button></div></div>
         <div class="detail-section"><h4>Time Entries (${task.loggedMinutes || 0} min logged)</h4>${timeHtml}
             <div class="detail-section-actions"><input type="number" id="new-time-minutes" placeholder="Minutes" min="1" style="width:100px;" />
+            <input type="date" id="new-time-worked-on" value="${new Date().toISOString().slice(0, 10)}" title="Worked on" style="width:150px;" />
             <input type="text" id="new-time-note" placeholder="Note" style="flex:1;" />
             <button class="btn-primary btn-sm" onclick="addTimeEntry(${taskId})">Log</button></div></div>
         <div class="detail-section"><h4>Dependencies (blocked by)</h4><ul class="dep-list">${blockedBy}</ul>
@@ -502,9 +503,14 @@ async function deleteChecklistItem(itemId, taskId) {
 
 async function addTimeEntry(taskId) {
     const minutes = parseInt(document.getElementById('new-time-minutes')?.value, 10);
+    const workedOn = document.getElementById('new-time-worked-on')?.value;
     const note = document.getElementById('new-time-note')?.value.trim() || null;
     if (!minutes || minutes < 1) { showError('Enter valid minutes'); return; }
-    await fetchApi(`/tasks/${taskId}/time-entries`, { method: 'POST', body: JSON.stringify({ minutes, note }) });
+    if (!workedOn) { showError('Pick the date you worked on'); return; }
+    await fetchApi(`/tasks/${taskId}/time-entries`, {
+        method: 'POST',
+        body: JSON.stringify({ minutes, workedOn, note })
+    });
     await refreshTaskDetail(taskId);
 }
 
