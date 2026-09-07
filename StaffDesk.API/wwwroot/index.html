@@ -211,28 +211,9 @@
         <section id="departments-view" style="display:none;">
             <div class="section-header">
                 <h2>🏢 <span data-i18n="page.departments">Departments</span></h2>
-                <button class="btn-primary" onclick="showCreateDepartment()" data-i18n="action.newDepartment">+ New Department</button>
+                <button id="btn-new-department" class="btn-primary" onclick="showCreateDepartment()" data-i18n="action.newDepartment" style="display:none;">+ New Department</button>
             </div>
             <div id="department-list" class="card-grid"></div>
-
-            <div id="create-department-form" class="form-card" style="display:none;">
-                <h3 data-i18n="form.createDepartment">Create Department</h3>
-                <form onsubmit="createDepartment(event)">
-                    <div class="form-group">
-                        <label data-i18n="label.name">Name</label>
-                        <input type="text" id="dept-name" required placeholder="e.g., Engineering" / data-i18n-placeholder="ui.e_g_engineering">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="label.location">Location</label>
-                        <input type="text" id="dept-location" required placeholder="e.g., Cairo Office" / data-i18n-placeholder="ui.e_g_cairo_office">
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
-                        <button type="button" class="btn-secondary" onclick="hideCreateDepartment()" data-i18n="common.cancel">Cancel</button>
-                    </div>
-                </form>
-                <div id="dept-error" class="error" style="display:none;"></div>
-            </div>
 
             <div id="edit-department-form" class="form-card" style="display:none;">
                 <h3 data-i18n="form.editDepartment">Edit Department</h3>
@@ -1845,6 +1826,33 @@
         <div id="error" class="error" style="display:none;"></div>
 
         <!-- ========================================== -->
+        <!-- CREATE DEPARTMENT MODAL -->
+        <!-- ========================================== -->
+        <div id="create-department-modal" class="modal-overlay" onclick="if(event.target===this)hideCreateDepartment()">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 data-i18n="form.createDepartment">Create Department</h2>
+                    <button type="button" class="modal-close" onclick="hideCreateDepartment()" aria-label="Close">&times;</button>
+                </div>
+                <form onsubmit="createDepartment(event)">
+                    <div class="form-group">
+                        <label data-i18n="label.name">Name</label>
+                        <input type="text" id="dept-name" required placeholder="e.g., Engineering" / data-i18n-placeholder="ui.e_g_engineering">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.location">Location</label>
+                        <input type="text" id="dept-location" required placeholder="e.g., Cairo Office" / data-i18n-placeholder="ui.e_g_cairo_office">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.create">Create</button>
+                        <button type="button" class="btn-secondary" onclick="hideCreateDepartment()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="dept-error" class="error" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
         <!-- CREATE / EDIT TASK MODALS -->
         <!-- ========================================== -->
         <div id="create-task-modal" class="modal-overlay" onclick="if(event.target===this)hideCreateTask()">
@@ -1979,11 +1987,11 @@
          modules below are classic scripts that call into it. -->
     <script src="i18n.js?v=10"></script>
     <script src="toast.js?v=1"></script>
-    <script src="app.js?v=25"></script>
+    <script src="app.js?v=26"></script>
 
     <!-- Feature modules -->
     <script src="dashboard.js?v=2"></script>
-    <script src="departments.js?v=4"></script>
+    <script src="departments.js?v=5"></script>
     <script src="employees.js?v=4"></script>
     <script src="levels.js?v=3"></script>
     <script src="tasks.js?v=5"></script>

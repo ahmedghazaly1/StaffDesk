@@ -401,6 +401,8 @@ function showDashboard() {
 function showDepartments() {
     currentView = 'departments';
     showView('departments-view', 'nav-departments', '#departments');
+    const newDeptBtn = document.getElementById('btn-new-department');
+    if (newDeptBtn) newDeptBtn.style.display = isAdmin() ? 'inline-flex' : 'none';
     loadDepartments();
 }
 

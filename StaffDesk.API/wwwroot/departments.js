@@ -54,16 +54,24 @@ function renderDepartments(departments) {
 }
 
 function showCreateDepartment() {
-    const form = document.getElementById('create-department-form');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    if (form.style.display === 'block') {
-        document.getElementById('dept-name').focus();
-    }
+    if (!isAdmin()) return;
+    const modal = document.getElementById('create-department-modal');
+    if (!modal) return;
+    const error = document.getElementById('dept-error');
+    if (error) error.style.display = 'none';
+    modal.classList.add('active');
+    document.getElementById('dept-name')?.focus();
 }
 
 function hideCreateDepartment() {
-    document.getElementById('create-department-form').style.display = 'none';
-    document.getElementById('dept-error').style.display = 'none';
+    const modal = document.getElementById('create-department-modal');
+    if (modal) modal.classList.remove('active');
+    const error = document.getElementById('dept-error');
+    if (error) error.style.display = 'none';
+    const name = document.getElementById('dept-name');
+    const location = document.getElementById('dept-location');
+    if (name) name.value = '';
+    if (location) location.value = '';
 }
 
 async function createDepartment(event) {
