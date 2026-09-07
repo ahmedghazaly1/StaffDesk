@@ -488,110 +488,6 @@
             </div>
 
             <div id="task-list" class="table-container"></div>
-
-            <div id="create-task-form" class="form-card" style="display:none;">
-                <h3 data-i18n="form.createTask">Create Task</h3>
-                <form onsubmit="createTask(event)">
-                    <div class="form-group">
-                        <label data-i18n="filter.title">Title</label>
-                        <input type="text" id="task-title" required placeholder="e.g., Build the dashboard" / data-i18n-placeholder="ui.e_g_build_the_dashboard">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="label.description">Description</label>
-                        <textarea id="task-description" rows="3" data-i18n-placeholder="common.optionalDescription" placeholder="Optional description"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label data-i18n="label.department">Department</label>
-                            <select id="task-department" required></select>
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="filter.priority">Priority</label>
-                            <select id="task-priority">
-                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
-                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
-                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
-                                <option value="LOW" data-i18n="priority.LOW">Low</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label data-i18n="filter.assigneeLabel">Assignee</label>
-                            <select id="task-assignee"><option value="" data-i18n="common.unassigned">Unassigned</option></select>
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="filter.dueDate">Due Date</label>
-                            <input type="datetime-local" id="task-due" />
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label data-i18n="ui.estimate_minutes">Estimate (minutes)</label>
-                            <input type="number" id="task-estimate" placeholder="e.g., 240" / data-i18n-placeholder="ui.e_g_240">
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="ui.tags_comma_separated">Tags (comma separated)</label>
-                            <input type="text" id="task-tags" placeholder="e.g., frontend, urgent" / data-i18n-placeholder="ui.e_g_frontend_urgent">
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" data-i18n="common.createTask">Create Task</button>
-                        <button type="button" class="btn-secondary" onclick="hideCreateTask()" data-i18n="common.cancel">Cancel</button>
-                    </div>
-                </form>
-                <div id="task-error" class="error" style="display:none;"></div>
-            </div>
-
-            <div id="edit-task-form" class="form-card" style="display:none;">
-                <h3 data-i18n="form.editTask">Edit Task</h3>
-                <form onsubmit="updateTask(event)">
-                    <input type="hidden" id="edit-task-id" />
-                    <input type="hidden" id="edit-task-archived" value="false" />
-                    <div class="form-group">
-                        <label data-i18n="filter.title">Title</label>
-                        <input type="text" id="edit-task-title" required />
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="label.description">Description</label>
-                        <textarea id="edit-task-description" rows="3"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label data-i18n="label.department">Department</label>
-                            <select id="edit-task-department" required></select>
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="filter.priority">Priority</label>
-                            <select id="edit-task-priority">
-                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
-                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
-                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
-                                <option value="LOW" data-i18n="priority.LOW">Low</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label data-i18n="filter.assigneeLabel">Assignee</label>
-                            <select id="edit-task-assignee"><option value="" data-i18n="common.unassigned">Unassigned</option></select>
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="filter.dueDate">Due Date</label>
-                            <input type="datetime-local" id="edit-task-due" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="ui.estimate_minutes">Estimate (minutes)</label>
-                        <input type="number" id="edit-task-estimate" placeholder="e.g., 240" / data-i18n-placeholder="ui.e_g_240">
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" data-i18n="common.saveChanges">Save Changes</button>
-                        <button type="button" class="btn-secondary" onclick="hideEditTask()" data-i18n="common.cancel">Cancel</button>
-                    </div>
-                </form>
-                <div id="edit-task-error" class="error" style="display:none;"></div>
-            </div>
         </section>
 
         <!-- ========================================== -->
@@ -1949,6 +1845,123 @@
         <div id="error" class="error" style="display:none;"></div>
 
         <!-- ========================================== -->
+        <!-- CREATE / EDIT TASK MODALS -->
+        <!-- ========================================== -->
+        <div id="create-task-modal" class="modal-overlay" onclick="if(event.target===this)hideCreateTask()">
+            <div class="modal modal-lg">
+                <div class="modal-header">
+                    <h2 data-i18n="form.createTask">Create Task</h2>
+                    <button type="button" class="modal-close" onclick="hideCreateTask()" aria-label="Close">&times;</button>
+                </div>
+                <form onsubmit="createTask(event)">
+                    <div class="form-group">
+                        <label data-i18n="filter.title">Title</label>
+                        <input type="text" id="task-title" required placeholder="e.g., Build the dashboard" / data-i18n-placeholder="ui.e_g_build_the_dashboard">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <textarea id="task-description" rows="3" data-i18n-placeholder="common.optionalDescription" placeholder="Optional description"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="task-department" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.priority">Priority</label>
+                            <select id="task-priority">
+                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
+                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
+                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
+                                <option value="LOW" data-i18n="priority.LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="filter.assigneeLabel">Assignee</label>
+                            <select id="task-assignee"><option value="" data-i18n="common.unassigned">Unassigned</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.dueDate">Due Date</label>
+                            <input type="datetime-local" id="task-due" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="ui.estimate_minutes">Estimate (minutes)</label>
+                            <input type="number" id="task-estimate" placeholder="e.g., 240" / data-i18n-placeholder="ui.e_g_240">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="ui.tags_comma_separated">Tags (comma separated)</label>
+                            <input type="text" id="task-tags" placeholder="e.g., frontend, urgent" / data-i18n-placeholder="ui.e_g_frontend_urgent">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.createTask">Create Task</button>
+                        <button type="button" class="btn-secondary" onclick="hideCreateTask()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="task-error" class="error" style="display:none;"></div>
+            </div>
+        </div>
+
+        <div id="edit-task-modal" class="modal-overlay" onclick="if(event.target===this)hideEditTask()">
+            <div class="modal modal-lg">
+                <div class="modal-header">
+                    <h2 data-i18n="form.editTask">Edit Task</h2>
+                    <button type="button" class="modal-close" onclick="hideEditTask()" aria-label="Close">&times;</button>
+                </div>
+                <form onsubmit="updateTask(event)">
+                    <input type="hidden" id="edit-task-id" />
+                    <input type="hidden" id="edit-task-archived" value="false" />
+                    <div class="form-group">
+                        <label data-i18n="filter.title">Title</label>
+                        <input type="text" id="edit-task-title" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label.description">Description</label>
+                        <textarea id="edit-task-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="label.department">Department</label>
+                            <select id="edit-task-department" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.priority">Priority</label>
+                            <select id="edit-task-priority">
+                                <option value="NORMAL" data-i18n="priority.NORMAL">Normal</option>
+                                <option value="URGENT" data-i18n="priority.URGENT">Urgent</option>
+                                <option value="HIGH" data-i18n="priority.HIGH">High</option>
+                                <option value="LOW" data-i18n="priority.LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="filter.assigneeLabel">Assignee</label>
+                            <select id="edit-task-assignee"><option value="" data-i18n="common.unassigned">Unassigned</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="filter.dueDate">Due Date</label>
+                            <input type="datetime-local" id="edit-task-due" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ui.estimate_minutes">Estimate (minutes)</label>
+                        <input type="number" id="edit-task-estimate" placeholder="e.g., 240" / data-i18n-placeholder="ui.e_g_240">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="common.saveChanges">Save Changes</button>
+                        <button type="button" class="btn-secondary" onclick="hideEditTask()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+                <div id="edit-task-error" class="error" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
         <!-- TASK DETAIL MODAL -->
         <!-- ========================================== -->
         <div id="task-detail-modal" class="modal-overlay" onclick="if(event.target===this)closeTaskDetail()">
@@ -1972,8 +1985,8 @@
     <script src="departments.js?v=3"></script>
     <script src="employees.js?v=3"></script>
     <script src="levels.js?v=2"></script>
-    <script src="tasks.js?v=3"></script>
-    <script src="task-detail.js?v=2"></script>
+    <script src="tasks.js?v=4"></script>
+    <script src="task-detail.js?v=3"></script>
     <script src="approvals.js?v=1"></script>
     <script src="requests.js?v=1"></script>
     <script src="sla.js?v=2"></script>

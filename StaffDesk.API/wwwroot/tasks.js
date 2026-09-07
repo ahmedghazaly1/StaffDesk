@@ -476,16 +476,16 @@ function sortTasksBy(field) {
 // Create Task
 // ============================================
 function showCreateTask() {
-    const form = document.getElementById('create-task-form');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    if (form.style.display === 'block') {
-        loadTaskDropdowns();
-        document.getElementById('task-title').focus();
-    }
+    hideEditTask();
+    const modal = document.getElementById('create-task-modal');
+    modal.classList.add('active');
+    loadTaskDropdowns();
+    document.getElementById('task-error').style.display = 'none';
+    setTimeout(() => document.getElementById('task-title').focus(), 50);
 }
 
 function hideCreateTask() {
-    document.getElementById('create-task-form').style.display = 'none';
+    document.getElementById('create-task-modal').classList.remove('active');
     document.getElementById('task-error').style.display = 'none';
 }
 

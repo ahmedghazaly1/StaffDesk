@@ -279,6 +279,7 @@ function closeTaskDetail() {
 // ============================================
 async function showEditTask(taskId) {
     closeTaskDetail();
+    hideCreateTask();
     try {
         const task = await fetchApi(`/tasks/${taskId}`);
         if (!task) return;
@@ -293,17 +294,17 @@ async function showEditTask(taskId) {
 
         await loadEditTaskDropdowns(task.departmentId, task.assigneeId);
 
-        document.getElementById('create-task-form').style.display = 'none';
-        document.getElementById('edit-task-form').style.display = 'block';
         document.getElementById('edit-task-error').style.display = 'none';
-        document.getElementById('edit-task-title').focus();
+        document.getElementById('edit-task-modal').classList.add('active');
+        setTimeout(() => document.getElementById('edit-task-title').focus(), 50);
     } catch (error) {
         showError('Failed to load task for editing');
     }
 }
 
 function hideEditTask() {
-    document.getElementById('edit-task-form').style.display = 'none';
+    document.getElementById('edit-task-modal').classList.remove('active');
+    document.getElementById('edit-task-error').style.display = 'none';
 }
 
 async function loadEditTaskDropdowns(selectedDepartmentId, selectedAssigneeId) {
