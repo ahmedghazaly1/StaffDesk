@@ -48,6 +48,8 @@ public class AuthSessionTests
         public Task<bool> UserExistsAsync(string username) => Task.FromResult(false);
         public Task<User?> GetByIdAsync(int id) => Task.FromResult<User?>(_user);
         public Task<User?> GetByEmployeeIdAsync(int employeeId) => Task.FromResult<User?>(_user);
+        public Task<IReadOnlyList<int>> GetEmployeeIdsByRoleAsync(string role) =>
+            Task.FromResult<IReadOnlyList<int>>(Array.Empty<int>());
         public Task UpdateAsync(User user) => Task.CompletedTask;
     }
 

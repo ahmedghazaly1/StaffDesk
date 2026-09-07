@@ -48,21 +48,13 @@ public class TaskRequestRepository : ITaskRequestRepository
 
     public async Task<(IEnumerable<TaskRequest> Items, int TotalCount)> GetFilteredAsync(
         int viewerId,
-        bool isAdmin,
         int? departmentId = null,
         string? status = null,
         int? page = null,
         int? limit = null,
         string? sort = "-submittedAt")
     {
-        var query = BaseQuery().AsQueryable();
-
-        if (!isAdmin)
-        {
-            query = query.Where(r =>
-                r.RequestedById == viewerId ||
-                (r.Department.ManagerId != null && r.Department.ManagerId == viewerId));
-        }
+        var query = BaseQuery().Where(r => r.RequestedById == viewerId);
 
         if (departmentId.HasValue)
             query = query.Where(r => r.DepartmentId == departmentId.Value);

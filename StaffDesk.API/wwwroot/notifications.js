@@ -72,7 +72,7 @@ function appendNotifications(notifications) {
     const list = document.getElementById('notif-list');
     const wrap = list.querySelector('.notif-load-more-wrap');
     const html = notifications.map(n => `
-        <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="handleNotificationClick(${n.id}, ${n.taskId ?? 'null'})">
+        <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="handleNotificationClick(${n.id}, ${n.taskId ?? 'null'}, ${JSON.stringify(n.type || '')})">
             <div class="notif-message">${n.message}</div>
             <div class="notif-meta">${timeAgo(n.createdAt)}</div>
         </div>
@@ -89,14 +89,14 @@ function renderNotifications(notifications) {
     }
 
     list.innerHTML = notifications.map(n => `
-        <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="handleNotificationClick(${n.id}, ${n.taskId ?? 'null'})">
+        <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="handleNotificationClick(${n.id}, ${n.taskId ?? 'null'}, ${JSON.stringify(n.type || '')})">
             <div class="notif-message">${n.message}</div>
             <div class="notif-meta">${timeAgo(n.createdAt)}</div>
         </div>
     `).join('');
 }
 
-async function handleNotificationClick(notificationId, taskId) {
+async function handleNotificationClick(notificationId, taskId, type) {
     document.getElementById('notif-panel').style.display = 'none';
     try {
         await fetchApi(`/notifications/${notificationId}/read`, { method: 'PATCH' }, {}, true);
@@ -106,6 +106,10 @@ async function handleNotificationClick(notificationId, taskId) {
     refreshNotificationBadge();
     if (taskId) {
         showTaskDetail(taskId);
+    } else if (type === 'TASK_REQUEST_SUBMITTED') {
+        currentView = 'requests';
+        showView('requests-view', 'nav-requests', '#requests');
+        switchRequestTab('triage');
     }
 }
 

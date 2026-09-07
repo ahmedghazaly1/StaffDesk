@@ -31,6 +31,61 @@ public class Phase3PartBTests
         Assert.Single(intervals);
         Assert.Null(intervals[0].ExitedAt);
         Assert.Equal("OPEN", intervals[0].Status);
+
+        var createdTask = await world.Db.Tasks.FindAsync(accepted.CreatedTaskId!.Value);
+        Assert.Equal(world.Member.Id, createdTask!.AssigneeId);
+    }
+
+    [Fact]
+    public async Task My_Requests_List_Excludes_Department_Requests_Submitted_By_Others()
+    {
+        await using var world = await Phase3World.CreateAsync();
+        var requests = world.TaskRequests();
+
+        await requests.SubmitAsync(world.Member.Id, "Member submitted this", null, world.Dept.Id, null, null);
+        await requests.SubmitAsync(world.Manager.Id, "Manager own request", null, world.Dept.Id, null, null);
+
+        var (managerItems, managerTotal) = await requests.GetListAsync(world.Manager.Id);
+        Assert.Equal(1, managerTotal);
+        Assert.All(managerItems, r => Assert.Equal(world.Manager.Id, r.RequestedById));
+        Assert.Contains(managerItems, r => r.Title == "Manager own request");
+
+        var (memberItems, memberTotal) = await requests.GetListAsync(world.Member.Id);
+        Assert.Equal(1, memberTotal);
+        Assert.Contains(memberItems, r => r.Title == "Member submitted this");
+    }
+
+    [Fact]
+    public async Task Submit_Notifies_Department_Manager_And_Admins_Not_Requester()
+    {
+        await using var world = await Phase3World.CreateAsync();
+
+        var adminEmployee = new Employee
+        {
+            FullName = "Org Admin", JobTitle = "Admin", DepartmentId = world.Dept.Id,
+            LevelId = world.Level.Id, JoinedAt = new DateOnly(2018, 1, 1), IsActive = true
+        };
+        world.Db.Employees.Add(adminEmployee);
+        await world.Db.SaveChangesAsync();
+        world.Db.Users.Add(new User
+        {
+            Username = "admin", Email = "a@t", Role = User.Roles.Admin,
+            EmployeeId = adminEmployee.Id, PasswordHash = "x"
+        });
+        await world.Db.SaveChangesAsync();
+
+        var requests = world.TaskRequests();
+        await requests.SubmitAsync(
+            world.Member.Id, "Need triage attention", null, world.Dept.Id, null, null);
+
+        var submittedNotes = await world.Db.Notifications
+            .Where(n => n.Type == "TASK_REQUEST_SUBMITTED")
+            .ToListAsync();
+
+        Assert.Contains(submittedNotes, n => n.RecipientId == world.Manager.Id);
+        Assert.Contains(submittedNotes, n => n.RecipientId == adminEmployee.Id);
+        Assert.DoesNotContain(submittedNotes, n => n.RecipientId == world.Member.Id);
+        Assert.All(submittedNotes, n => Assert.Contains("Need triage attention", n.Message));
     }
 
     [Fact]

@@ -47,7 +47,8 @@ public class TaskRequestsController : ApiControllerBase
     }
 
     // ============================================
-    // GET /v1/task-requests - own requests, plus (for triagers) their department's requests.
+    // GET /v1/task-requests - requests the caller submitted ("My Requests"). Department intake
+    // for triagers lives on GET /v1/task-requests/triage-queue.
     // ============================================
     [HttpGet]
     public async Task<IActionResult> GetList(

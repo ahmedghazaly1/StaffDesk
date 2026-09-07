@@ -71,7 +71,9 @@ public class TaskRequestService : ITaskRequestService
             UpdatedAt = now
         };
 
-        return await _requestRepository.CreateAsync(request);
+        var created = await _requestRepository.CreateAsync(request);
+        await NotifyTriageAuthoritiesOfSubmissionAsync(created, department!);
+        return created;
     }
 
     public async Task<TaskRequest?> GetRequestAsync(int id, int viewerId)
@@ -88,10 +90,7 @@ public class TaskRequestService : ITaskRequestService
     public async Task<(IEnumerable<TaskRequest> Items, int TotalCount)> GetListAsync(
         int viewerId, int? departmentId = null, string? status = null, int? page = null, int? limit = null)
     {
-        var user = await _userRepository.GetByEmployeeIdAsync(viewerId);
-        var isAdmin = user?.Role == "Admin";
-
-        return await _requestRepository.GetFilteredAsync(viewerId, isAdmin, departmentId, status, page, limit);
+        return await _requestRepository.GetFilteredAsync(viewerId, departmentId, status, page, limit);
     }
 
     public async Task<List<TaskRequest>> GetTriageQueueAsync(int? departmentId, int actorId)
@@ -156,6 +155,7 @@ public class TaskRequestService : ITaskRequestService
                 Description = request.Description, // WC-6: carried across verbatim.
                 DepartmentId = request.DepartmentId,
                 CreatedById = actorId, // WC-6: the ACCEPTING employee (triager) is the task's creator.
+                AssigneeId = request.RequestedById, // The requester owns the work after accept.
                 Priority = "NORMAL",
                 Status = "OPEN",
                 SourceRequestId = request.Id,
@@ -168,6 +168,10 @@ public class TaskRequestService : ITaskRequestService
 
             await _taskRepository.AddActivityAsync(
                 createdTask.Id, actorId, "CREATED", null, null, null, null, Guid.NewGuid().ToString());
+
+            await _taskRepository.AddActivityAsync(
+                createdTask.Id, actorId, "ASSIGNED", "Assignee",
+                null, request.RequestedById.ToString(), null, Guid.NewGuid().ToString());
 
             // Module 1 (WC-23): open the first status interval, same as any other task creation path.
             await _taskRepository.OpenStatusIntervalAsync(createdTask.Id, createdTask.Status, actorId, createdTask.CreatedAt);
@@ -273,6 +277,33 @@ public class TaskRequestService : ITaskRequestService
         );
 
         return request;
+    }
+
+    private async Task NotifyTriageAuthoritiesOfSubmissionAsync(TaskRequest request, Department department)
+    {
+        var recipients = new HashSet<int>();
+        if (department.ManagerId is int managerId)
+            recipients.Add(managerId);
+
+        var triagers = await _departmentRepository.GetTriagersAsync(request.DepartmentId);
+        foreach (var triager in triagers)
+            recipients.Add(triager.EmployeeId);
+
+        foreach (var adminEmployeeId in await _userRepository.GetEmployeeIdsByRoleAsync(User.Roles.Admin))
+            recipients.Add(adminEmployeeId);
+
+        recipients.Remove(request.RequestedById);
+
+        var departmentName = string.IsNullOrWhiteSpace(department.Name) ? "a department" : department.Name;
+        foreach (var recipientId in recipients)
+        {
+            await _taskRepository.CreateNotificationAsync(
+                recipientId,
+                "TASK_REQUEST_SUBMITTED",
+                $"New task request '{request.Title}' was submitted for {departmentName} and needs triage",
+                null
+            );
+        }
     }
 
     // WC-7: triage authority = department manager, designated triager, or Admin.

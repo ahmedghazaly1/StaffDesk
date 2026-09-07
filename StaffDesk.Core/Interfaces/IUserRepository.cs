@@ -9,5 +9,6 @@ public interface IUserRepository
     Task<bool> UserExistsAsync(string username);
     Task<User?> GetByIdAsync(int id);
     Task<User?> GetByEmployeeIdAsync(int employeeId);
+    Task<IReadOnlyList<int>> GetEmployeeIdsByRoleAsync(string role);
     Task UpdateAsync(User user);
 }

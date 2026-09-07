@@ -8,12 +8,10 @@ public interface ITaskRequestRepository
     Task<TaskRequest> CreateAsync(TaskRequest request);
     Task<TaskRequest> UpdateAsync(TaskRequest request);
 
-    // viewerId/isAdmin drive visibility: admins see everything, everyone else sees requests they
-    // raised themselves plus requests in departments they manage (triage authority) - same
-    // "filter inside the query, before pagination" discipline as ITaskRepository.GetFilteredAsync (LS-1).
+    // "My requests" list: only requests the viewer submitted. Department-wide intake belongs on
+    // the triage queue, not this list — even for managers and admins.
     Task<(IEnumerable<TaskRequest> Items, int TotalCount)> GetFilteredAsync(
         int viewerId,
-        bool isAdmin,
         int? departmentId = null,
         string? status = null,
         int? page = null,

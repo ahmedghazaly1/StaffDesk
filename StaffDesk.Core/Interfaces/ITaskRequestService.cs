@@ -16,6 +16,7 @@ public interface ITaskRequestService
 
     Task<TaskRequest?> GetRequestAsync(int id, int viewerId);
 
+    /// <summary>Requests this employee submitted. Department intake is on the triage queue.</summary>
     Task<(IEnumerable<TaskRequest> Items, int TotalCount)> GetListAsync(
         int viewerId,
         int? departmentId = null,

@@ -43,6 +43,15 @@ public class UserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.EmployeeId == employeeId);
     }
 
+    public async Task<IReadOnlyList<int>> GetEmployeeIdsByRoleAsync(string role)
+    {
+        return await _context.Users
+            .Where(u => u.Role == role && u.EmployeeId != null)
+            .Select(u => u.EmployeeId!.Value)
+            .Distinct()
+            .ToListAsync();
+    }
+
     public async Task UpdateAsync(User user)
     {
         await _context.SaveChangesAsync();
