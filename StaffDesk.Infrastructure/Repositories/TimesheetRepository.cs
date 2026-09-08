@@ -77,17 +77,25 @@ public class TimesheetRepository : ITimesheetRepository
             .ToListAsync();
     }
 
-    public async Task<TimesheetAttachment> AddAttachmentAsync(TimesheetAttachment attachment)
+    public async Task<TimesheetAttachment> AddAttachmentAsync(TimesheetAttachment attachment, byte[] bytes)
     {
+        attachment.Content = new TimesheetAttachmentContent { Bytes = bytes };
         _db.TimesheetAttachments.Add(attachment);
         await _db.SaveChangesAsync();
         return attachment;
     }
 
+    // Deliberately does not include Content: only the download path needs the bytes.
     public Task<TimesheetAttachment?> GetAttachmentAsync(int attachmentId) =>
         _db.TimesheetAttachments
             .Include(a => a.Timesheet)
             .FirstOrDefaultAsync(a => a.Id == attachmentId);
+
+    public Task<byte[]?> GetAttachmentBytesAsync(int attachmentId) =>
+        _db.TimesheetAttachmentContents.AsNoTracking()
+            .Where(c => c.TimesheetAttachmentId == attachmentId)
+            .Select(c => c.Bytes)
+            .FirstOrDefaultAsync();
 
     public async Task RemoveAttachmentAsync(TimesheetAttachment attachment)
     {

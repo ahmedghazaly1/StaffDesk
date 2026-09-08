@@ -14,3 +14,8 @@ D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\refint\StaffDesk
 D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.pdb
 D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\ref\StaffDesk.Infrastructure.dll
 D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\Debug\net8.0\StaffDesk.Infrastructure.sourcelink.json
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\tmpverify\StaffDesk.Infrastructure.deps.json
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\tmpverify\StaffDesk.Infrastructure.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\tmpverify\StaffDesk.Infrastructure.pdb
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\tmpverify\StaffDesk.Core.dll
+D:\PROJECTS\StaffDesk\StaffDesk.Infrastructure\obj\tmpverify\StaffDesk.Core.pdb

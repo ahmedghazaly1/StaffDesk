@@ -250,6 +250,7 @@ internal sealed class Phase3World : IAsyncDisposable
         public Task<IReadOnlyList<object>> MineAsync(int employeeId) => Task.FromResult<IReadOnlyList<object>>(Array.Empty<object>());
         public Task<IReadOnlyList<object>> PendingReviewAsync(int managerEmployeeId) => Task.FromResult<IReadOnlyList<object>>(Array.Empty<object>());
         public Task<object> UploadAttachmentAsync(int employeeId, DateOnly monthStart, string fileName, string? contentType, Stream content, long sizeBytes) => throw new NotImplementedException();
+
         public Task<TimesheetAttachmentDownload> DownloadAttachmentAsync(int attachmentId, int actorEmployeeId, string actorRole) => throw new NotImplementedException();
         public Task DeleteAttachmentAsync(int attachmentId, int actorEmployeeId) => Task.CompletedTask;
     }

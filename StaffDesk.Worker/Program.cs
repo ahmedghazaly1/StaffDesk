@@ -41,7 +41,6 @@ builder.Services.AddScoped<IGovernanceRepository, GovernanceRepository>();
 builder.Services.AddScoped<IWorkCalendarRepository, WorkCalendarRepository>();
 builder.Services.AddScoped<ILeaveRepository, LeaveRepository>();
 builder.Services.AddScoped<ITimesheetRepository, TimesheetRepository>();
-builder.Services.AddSingleton<IAttachmentStorage, LocalAttachmentStorage>();
 builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 builder.Services.AddScoped<IPerformanceRepository, PerformanceRepository>();
 

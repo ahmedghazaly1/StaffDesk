@@ -103,6 +103,7 @@ public class AppDbContext : DbContext
     public DbSet<LeaveRequest> LeaveRequests { get; set; }
     public DbSet<Timesheet> Timesheets { get; set; }
     public DbSet<TimesheetAttachment> TimesheetAttachments { get; set; }
+    public DbSet<TimesheetAttachmentContent> TimesheetAttachmentContents { get; set; }
 
     // ============================================
     // Part D — Analytics snapshots
@@ -870,8 +871,17 @@ public class AppDbContext : DbContext
         {
             entity.Property(a => a.FileName).HasMaxLength(260).IsRequired();
             entity.Property(a => a.ContentType).HasMaxLength(160).IsRequired();
-            entity.Property(a => a.StoragePath).HasMaxLength(400).IsRequired();
             entity.Property(a => a.Sha256).HasMaxLength(64);
+        });
+
+        modelBuilder.Entity<TimesheetAttachmentContent>(entity =>
+        {
+            entity.HasKey(c => c.TimesheetAttachmentId);
+            entity.Property(c => c.Bytes).IsRequired();
+            entity.HasOne(c => c.Attachment)
+                .WithOne(a => a.Content)
+                .HasForeignKey<TimesheetAttachmentContent>(c => c.TimesheetAttachmentId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ============================================

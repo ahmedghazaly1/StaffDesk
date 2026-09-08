@@ -11,7 +11,8 @@ public interface ITimesheetRepository
     Task<IReadOnlyList<Timesheet>> GetForEmployeeAsync(int employeeId);
     Task<IReadOnlyList<Timesheet>> GetSubmittedForReviewerAsync(IEnumerable<int> reportEmployeeIds);
 
-    Task<TimesheetAttachment> AddAttachmentAsync(TimesheetAttachment attachment);
+    Task<TimesheetAttachment> AddAttachmentAsync(TimesheetAttachment attachment, byte[] bytes);
     Task<TimesheetAttachment?> GetAttachmentAsync(int attachmentId);
+    Task<byte[]?> GetAttachmentBytesAsync(int attachmentId);
     Task RemoveAttachmentAsync(TimesheetAttachment attachment);
 }

@@ -17,13 +17,26 @@ public class TimesheetAttachment
     public string ContentType { get; set; } = "application/octet-stream";
     public long SizeBytes { get; set; }
 
-    /// <summary>Path relative to the configured attachment storage root.</summary>
-    public string StoragePath { get; set; } = "";
-
     /// <summary>Hex SHA-256 of the stored bytes, so a download can be checked against what was submitted.</summary>
     public string Sha256 { get; set; } = "";
 
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+
+    public TimesheetAttachmentContent? Content { get; set; }
+}
+
+/// <summary>
+/// File bytes, kept in their own table so listing timesheets never drags blobs into memory.
+/// Stored in the database rather than on disk because the app runs on hosts with an ephemeral
+/// container filesystem, where uploaded files would not survive a redeploy.
+/// </summary>
+public class TimesheetAttachmentContent
+{
+    /// <summary>Primary key and foreign key: one content row per attachment.</summary>
+    public int TimesheetAttachmentId { get; set; }
+    public TimesheetAttachment Attachment { get; set; } = null!;
+
+    public byte[] Bytes { get; set; } = Array.Empty<byte>();
 }
 
 public static class TimesheetAttachmentRules

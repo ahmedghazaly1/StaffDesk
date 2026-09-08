@@ -11,20 +11,17 @@ public class TimesheetService : ITimesheetService
     private readonly IEmployeeRepository _employees;
     private readonly IUserRepository _users;
     private readonly IAuditService _audit;
-    private readonly IAttachmentStorage _attachments;
 
     public TimesheetService(
         ITimesheetRepository timesheets,
         IEmployeeRepository employees,
         IUserRepository users,
-        IAuditService audit,
-        IAttachmentStorage attachments)
+        IAuditService audit)
     {
         _timesheets = timesheets;
         _employees = employees;
         _users = users;
         _audit = audit;
-        _attachments = attachments;
     }
 
     public async Task<object> GetWeekAsync(int employeeId, DateOnly weekStart, int actorEmployeeId, string actorRole)
@@ -185,11 +182,8 @@ public class TimesheetService : ITimesheetService
 
         using var buffer = new MemoryStream();
         await content.CopyToAsync(buffer);
-        buffer.Position = 0;
-        var hash = Convert.ToHexString(SHA256.HashData(buffer.ToArray())).ToLowerInvariant();
-        buffer.Position = 0;
-
-        var storagePath = await _attachments.SaveAsync($"timesheet-{sheet.Id}", safeName, buffer);
+        var bytes = buffer.ToArray();
+        var hash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
         var attachment = await _timesheets.AddAttachmentAsync(new TimesheetAttachment
         {
@@ -197,11 +191,10 @@ public class TimesheetService : ITimesheetService
             UploadedById = employeeId,
             FileName = safeName,
             ContentType = string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType,
-            SizeBytes = buffer.Length,
-            StoragePath = storagePath,
+            SizeBytes = bytes.LongLength,
             Sha256 = hash,
             UploadedAt = DateTime.UtcNow
-        });
+        }, bytes);
 
         await _audit.LogAsync("TIMESHEET_ATTACHMENT_UPLOADED", employeeId, $"employee:{employeeId}",
             "SUCCESS", "TimesheetAttachment", attachment.Id.ToString(),
@@ -217,12 +210,11 @@ public class TimesheetService : ITimesheetService
 
         await EnsureCanViewAsync(attachment.Timesheet.EmployeeId, actorEmployeeId, actorRole);
 
-        if (!_attachments.Exists(attachment.StoragePath))
-            throw new TaskDomainException(TaskErrorCodes.NotFound,
+        var bytes = await _timesheets.GetAttachmentBytesAsync(attachmentId)
+            ?? throw new TaskDomainException(TaskErrorCodes.NotFound,
                 "The stored file for this attachment is no longer available", 404);
 
-        var stream = await _attachments.OpenReadAsync(attachment.StoragePath);
-        return new TimesheetAttachmentDownload(attachment.FileName, attachment.ContentType, stream);
+        return new TimesheetAttachmentDownload(attachment.FileName, attachment.ContentType, new MemoryStream(bytes));
     }
 
     public async Task DeleteAttachmentAsync(int attachmentId, int actorEmployeeId)
@@ -237,7 +229,6 @@ public class TimesheetService : ITimesheetService
         EnsureAttachmentsEditable(attachment.Timesheet);
 
         await _timesheets.RemoveAttachmentAsync(attachment);
-        await _attachments.DeleteAsync(attachment.StoragePath);
 
         await _audit.LogAsync("TIMESHEET_ATTACHMENT_DELETED", actorEmployeeId, $"employee:{actorEmployeeId}",
             "SUCCESS", "TimesheetAttachment", attachmentId.ToString(),
