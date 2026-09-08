@@ -41,6 +41,14 @@ public class TaskService : ITaskService
     // Active statuses
     private static readonly List<string> _activeStatuses = new() { "OPEN", "IN_PROGRESS", "BLOCKED", "IN_REVIEW" };
 
+    // Permission checks repeat the same handful of lookups for every task in a list, which turned a
+    // single page of tasks into well over a hundred queries. The service is registered per request,
+    // so memoizing them here keeps a list request to one lookup per distinct id.
+    private readonly Dictionary<int, Employee?> _employeeLookupCache = new();
+    private readonly Dictionary<int, string> _roleLookupCache = new();
+    private readonly Dictionary<int, Department?> _departmentLookupCache = new();
+    private readonly Dictionary<(int UserId, int DelegatorId), bool> _taskDelegationCache = new();
+
     public TaskService(
         ITaskRepository taskRepository,
         IEmployeeRepository employeeRepository,
@@ -715,13 +723,20 @@ public class TaskService : ITaskService
         if (task == null)
             return new List<string>();
 
+        return await GetAvailableTransitionsAsync(task, userId);
+    }
+
+    // Overload for callers that already hold the task (list endpoints), so neither this method nor
+    // the per-status permission check re-reads the same row from the database.
+    public async Task<List<string>> GetAvailableTransitionsAsync(WorkTask task, int userId)
+    {
         if (!_allowedTransitions.ContainsKey(task.Status))
             return new List<string>();
 
         var transitions = new List<string>();
         foreach (var status in _allowedTransitions[task.Status])
         {
-            if (await CanTransitionTaskAsync(taskId, userId, status))
+            if (await CanTransitionAsync(task, userId, status))
                 transitions.Add(status);
         }
 
@@ -1530,16 +1545,21 @@ public class TaskService : ITaskService
     // (e.g. BLOCKED->CANCELLED is creator-only, IN_PROGRESS->OPEN is assignee-only).
     public async Task<bool> CanTransitionTaskAsync(int taskId, int userId, string newStatus)
     {
-        var user = await GetUserEmployeeAsync(userId);
-        if (user == null) return false;
-
         var task = await _taskRepository.GetByIdAsync(taskId);
         if (task == null) return false;
+
+        return await CanTransitionAsync(task, userId, newStatus);
+    }
+
+    private async Task<bool> CanTransitionAsync(WorkTask task, int userId, string newStatus)
+    {
+        var user = await GetUserEmployeeAsync(userId);
+        if (user == null) return false;
 
         var userRole = await GetUserRoleAsync(userId);
         if (userRole == "Admin") return true;
 
-        var dept = await _departmentRepository.GetByIdAsync(task.DepartmentId);
+        var dept = await GetDepartmentCachedAsync(task.DepartmentId);
         if (dept?.ManagerId == userId) return true;
 
         var isAssignee = await IsActingAsAssigneeAsync(task, userId);
@@ -1578,7 +1598,11 @@ public class TaskService : ITaskService
 
     public async Task<Employee?> GetUserEmployeeAsync(int userId)
     {
-        return await _employeeRepository.GetByIdAsync(userId);
+        if (_employeeLookupCache.TryGetValue(userId, out var cached)) return cached;
+
+        var employee = await _employeeRepository.GetByIdAsync(userId);
+        _employeeLookupCache[userId] = employee;
+        return employee;
     }
 
     // ============================================
@@ -1648,8 +1672,21 @@ public class TaskService : ITaskService
     // reverse link (User.EmployeeId == employeeId) rather than treating employeeId as a User.Id.
     private async Task<string> GetUserRoleAsync(int employeeId)
     {
+        if (_roleLookupCache.TryGetValue(employeeId, out var cached)) return cached;
+
         var user = await _userRepository.GetByEmployeeIdAsync(employeeId);
-        return user?.Role ?? "Member";
+        var role = user?.Role ?? "Member";
+        _roleLookupCache[employeeId] = role;
+        return role;
+    }
+
+    private async Task<Department?> GetDepartmentCachedAsync(int departmentId)
+    {
+        if (_departmentLookupCache.TryGetValue(departmentId, out var cached)) return cached;
+
+        var dept = await _departmentRepository.GetByIdAsync(departmentId);
+        _departmentLookupCache[departmentId] = dept;
+        return dept;
     }
 
     private async Task NotifyWatchersAsync(int taskId, int actorId, string message, string notificationType = "STATUS_CHANGED")
@@ -1692,7 +1729,13 @@ public class TaskService : ITaskService
     {
         if (task.AssigneeId == userId) return true;
         if (!task.AssigneeId.HasValue) return false;
-        return await _delegationService.IsDelegateForDelegatorAsync(userId, task.AssigneeId.Value, "TASKS");
+
+        var key = (userId, task.AssigneeId.Value);
+        if (_taskDelegationCache.TryGetValue(key, out var cached)) return cached;
+
+        var isDelegate = await _delegationService.IsDelegateForDelegatorAsync(userId, task.AssigneeId.Value, "TASKS");
+        _taskDelegationCache[key] = isDelegate;
+        return isDelegate;
     }
 
     // WC-13: shared "may act as reviewer/approver authority" check - department manager or Admin.

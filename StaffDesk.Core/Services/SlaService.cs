@@ -80,7 +80,7 @@ public class SlaService : ISlaService
         }
 
         // Determine breach state (SL-3: subtract blocked pause from remaining time)
-        var blockedPause = await GetBlockedPauseMinutesAsync(task.Id);
+        var blockedPause = await GetBlockedPauseMinutesAsync(task);
         task.BreachState = DetermineBreachState(task, blockedPause);
 
         return task;
@@ -106,9 +106,19 @@ public class SlaService : ISlaService
         var task = await _taskRepository.GetByIdAsync(taskId);
         if (task == null) return 0;
 
+        return await GetBlockedPauseMinutesAsync(task);
+    }
+
+    // Overload for callers that already hold the task, so list endpoints don't re-read every row.
+    public async Task<int> GetBlockedPauseMinutesAsync(WorkTask task)
+    {
         var total = task.BlockedPauseMinutes;
 
-        var intervals = await _taskRepository.GetStatusIntervalsAsync(taskId);
+        // Only the current status interval is left open, so a task that isn't BLOCKED right now
+        // cannot have running blocked time to add — no need to read its intervals at all.
+        if (task.Status != "BLOCKED") return total;
+
+        var intervals = await _taskRepository.GetStatusIntervalsAsync(task.Id);
         var openBlocked = intervals.FirstOrDefault(i => i.Status == "BLOCKED" && i.ExitedAt == null);
         if (openBlocked != null)
         {

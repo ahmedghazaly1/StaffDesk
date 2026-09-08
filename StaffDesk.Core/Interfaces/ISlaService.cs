@@ -15,6 +15,7 @@ public interface ISlaService
     long? GetRemainingMinutes(WorkTask task);
     long? GetRemainingMinutes(WorkTask task, int? blockedPauseMinutes);
     Task<int> GetBlockedPauseMinutesAsync(int taskId);
+    Task<int> GetBlockedPauseMinutesAsync(WorkTask task);
     Task RecordSlaSnapshotAsync(WorkTask task);
 
     // ============================================

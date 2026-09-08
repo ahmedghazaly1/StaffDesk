@@ -64,6 +64,7 @@ public interface ITaskService
     // Status
     Task<WorkTask> TransitionStatusAsync(int taskId, int userId, string newStatus, string? reason = null, int? assigneeId = null, string? reworkCategory = null, string? outcome = null);
     Task<List<string>> GetAvailableTransitionsAsync(int taskId, int userId);
+    Task<List<string>> GetAvailableTransitionsAsync(WorkTask task, int userId);
 
     // Assignment
     Task<WorkTask> AssignTaskAsync(int taskId, int userId, int? assigneeId);

@@ -220,6 +220,7 @@ internal sealed class Phase3World : IAsyncDisposable
         public long? GetRemainingMinutes(WorkTask task) => null;
         public long? GetRemainingMinutes(WorkTask task, int? blockedPauseMinutes) => null;
         public Task<int> GetBlockedPauseMinutesAsync(int taskId) => Task.FromResult(0);
+        public Task<int> GetBlockedPauseMinutesAsync(WorkTask task) => Task.FromResult(0);
         public Task RecordSlaSnapshotAsync(WorkTask task) => Task.CompletedTask;
         public Task<List<SlaEvaluationResult>> EvaluateAllTasksAsync() => Task.FromResult(new List<SlaEvaluationResult>());
         public Task<SlaTaskState> GetTaskSlaStateAsync(WorkTask task) => Task.FromResult(new SlaTaskState());

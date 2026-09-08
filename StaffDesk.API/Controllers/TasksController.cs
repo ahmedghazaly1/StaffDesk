@@ -823,14 +823,14 @@ public class TasksController : ApiControllerBase
     List<string> availableTransitions;
     try
     {
-        availableTransitions = await _taskService.GetAvailableTransitionsAsync(task.Id, viewerId);
+        availableTransitions = await _taskService.GetAvailableTransitionsAsync(task, viewerId);
     }
     catch (TaskDomainException)
     {
         availableTransitions = new List<string>();
     }
 
-    var blockedPause = await _slaService.GetBlockedPauseMinutesAsync(task.Id);
+    var blockedPause = await _slaService.GetBlockedPauseMinutesAsync(task);
 
     return new TaskResponseDto
     {

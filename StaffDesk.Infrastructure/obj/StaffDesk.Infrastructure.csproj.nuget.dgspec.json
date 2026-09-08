@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {}
+    "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {}
   },
   "projects": {
     "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
@@ -84,14 +84,14 @@
         }
       }
     },
-    "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {
+    "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
+        "projectUniqueName": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
         "projectName": "StaffDesk.Infrastructure",
-        "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
+        "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Ahmed\\AppData\\Local\\Temp\\cursor-sandbox-cache\\44b1b964a9199204d0e47218dfff7cab\\nuget",
-        "outputPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\obj\\",
+        "outputPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config"
