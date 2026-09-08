@@ -1,0 +1,3 @@
+# Uploaded timesheet attachments are runtime data, never source.
+*
+!.gitignore

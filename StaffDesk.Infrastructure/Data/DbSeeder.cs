@@ -133,7 +133,10 @@ public static class DbSeeder
     // ============================================
     public static void SeedUsers(AppDbContext context)
     {
-        var employeeByName = context.Employees.ToDictionary(e => e.FullName, e => e.Id);
+        // Full names are not unique in the database, so seeding must not assume one row per name.
+        var employeeByName = context.Employees.ToList()
+            .GroupBy(e => e.FullName)
+            .ToDictionary(g => g.Key, g => g.First().Id);
 
         var accounts = new (string Username, string Password, string Email, string Role, string EmployeeName)[]
         {
@@ -175,8 +178,12 @@ public static class DbSeeder
     {
         if (context.Tasks.Any()) return;
 
-        var e = context.Employees.ToDictionary(x => x.FullName, x => x);
-        var d = context.Departments.ToDictionary(x => x.Name, x => x);
+        var e = context.Employees.ToList()
+            .GroupBy(x => x.FullName)
+            .ToDictionary(g => g.Key, g => g.First());
+        var d = context.Departments.ToList()
+            .GroupBy(x => x.Name)
+            .ToDictionary(g => g.Key, g => g.First());
         var now = DateTime.UtcNow;
 
         var seedTasks = new (string Title, string Description, string Dept, string CreatedBy, string? Assignee, string Status, string Priority, int? DueInDays)[]

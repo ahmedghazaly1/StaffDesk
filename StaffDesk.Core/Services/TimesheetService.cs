@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using StaffDesk.Core.Entities;
 using StaffDesk.Core.Exceptions;
 using StaffDesk.Core.Interfaces;
@@ -10,17 +11,20 @@ public class TimesheetService : ITimesheetService
     private readonly IEmployeeRepository _employees;
     private readonly IUserRepository _users;
     private readonly IAuditService _audit;
+    private readonly IAttachmentStorage _attachments;
 
     public TimesheetService(
         ITimesheetRepository timesheets,
         IEmployeeRepository employees,
         IUserRepository users,
-        IAuditService audit)
+        IAuditService audit,
+        IAttachmentStorage attachments)
     {
         _timesheets = timesheets;
         _employees = employees;
         _users = users;
         _audit = audit;
+        _attachments = attachments;
     }
 
     public async Task<object> GetWeekAsync(int employeeId, DateOnly weekStart, int actorEmployeeId, string actorRole)
@@ -75,7 +79,7 @@ public class TimesheetService : ITimesheetService
 
         await _audit.LogAsync("TIMESHEET_SUBMITTED", employeeId, $"employee:{employeeId}",
             "SUCCESS", "Timesheet", sheet.Id.ToString(),
-            changes: new { sheet.WeekStart });
+            changes: new { sheet.WeekStart, attachmentCount = sheet.Attachments?.Count ?? 0 });
 
         return sheet;
     }
@@ -160,6 +164,105 @@ public class TimesheetService : ITimesheetService
         return sheets.Select(MapSheet).ToList();
     }
 
+    public async Task<object> UploadAttachmentAsync(int employeeId, DateOnly monthStart, string fileName, string? contentType, Stream content, long sizeBytes)
+    {
+        if (sizeBytes <= 0)
+            throw new TaskDomainException(TaskErrorCodes.ValidationError, "The uploaded file is empty", 400);
+
+        if (sizeBytes > TimesheetAttachmentRules.MaxSizeBytes)
+            throw new TaskDomainException(TaskErrorCodes.ValidationError,
+                $"Attachments cannot exceed {TimesheetAttachmentRules.MaxSizeBytes / (1024 * 1024)} MB", 400);
+
+        var safeName = SanitizeFileName(fileName);
+        var extension = Path.GetExtension(safeName).ToLowerInvariant();
+        if (!TimesheetAttachmentRules.AllowedExtensions.Contains(extension))
+            throw new TaskDomainException(TaskErrorCodes.ValidationError,
+                $"File type '{(extension.Length == 0 ? "unknown" : extension)}' is not allowed. Allowed: {string.Join(", ", TimesheetAttachmentRules.AllowedExtensions)}",
+                400);
+
+        var sheet = await _timesheets.GetOrCreateOpenWeekAsync(employeeId, monthStart);
+        EnsureAttachmentsEditable(sheet);
+
+        using var buffer = new MemoryStream();
+        await content.CopyToAsync(buffer);
+        buffer.Position = 0;
+        var hash = Convert.ToHexString(SHA256.HashData(buffer.ToArray())).ToLowerInvariant();
+        buffer.Position = 0;
+
+        var storagePath = await _attachments.SaveAsync($"timesheet-{sheet.Id}", safeName, buffer);
+
+        var attachment = await _timesheets.AddAttachmentAsync(new TimesheetAttachment
+        {
+            TimesheetId = sheet.Id,
+            UploadedById = employeeId,
+            FileName = safeName,
+            ContentType = string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType,
+            SizeBytes = buffer.Length,
+            StoragePath = storagePath,
+            Sha256 = hash,
+            UploadedAt = DateTime.UtcNow
+        });
+
+        await _audit.LogAsync("TIMESHEET_ATTACHMENT_UPLOADED", employeeId, $"employee:{employeeId}",
+            "SUCCESS", "TimesheetAttachment", attachment.Id.ToString(),
+            changes: new { sheet.Id, attachment.FileName, attachment.SizeBytes });
+
+        return MapAttachment(attachment);
+    }
+
+    public async Task<TimesheetAttachmentDownload> DownloadAttachmentAsync(int attachmentId, int actorEmployeeId, string actorRole)
+    {
+        var attachment = await _timesheets.GetAttachmentAsync(attachmentId)
+            ?? throw new TaskDomainException(TaskErrorCodes.NotFound, "Attachment not found", 404);
+
+        await EnsureCanViewAsync(attachment.Timesheet.EmployeeId, actorEmployeeId, actorRole);
+
+        if (!_attachments.Exists(attachment.StoragePath))
+            throw new TaskDomainException(TaskErrorCodes.NotFound,
+                "The stored file for this attachment is no longer available", 404);
+
+        var stream = await _attachments.OpenReadAsync(attachment.StoragePath);
+        return new TimesheetAttachmentDownload(attachment.FileName, attachment.ContentType, stream);
+    }
+
+    public async Task DeleteAttachmentAsync(int attachmentId, int actorEmployeeId)
+    {
+        var attachment = await _timesheets.GetAttachmentAsync(attachmentId)
+            ?? throw new TaskDomainException(TaskErrorCodes.NotFound, "Attachment not found", 404);
+
+        if (attachment.Timesheet.EmployeeId != actorEmployeeId)
+            throw new TaskDomainException(TaskErrorCodes.Forbidden,
+                "You can only remove attachments from your own timesheet", 403);
+
+        EnsureAttachmentsEditable(attachment.Timesheet);
+
+        await _timesheets.RemoveAttachmentAsync(attachment);
+        await _attachments.DeleteAsync(attachment.StoragePath);
+
+        await _audit.LogAsync("TIMESHEET_ATTACHMENT_DELETED", actorEmployeeId, $"employee:{actorEmployeeId}",
+            "SUCCESS", "TimesheetAttachment", attachmentId.ToString(),
+            changes: new { attachment.Timesheet.Id, attachment.FileName });
+    }
+
+    private static void EnsureAttachmentsEditable(Timesheet sheet)
+    {
+        if (sheet.State is TimesheetStates.Submitted or TimesheetStates.Approved)
+            throw new TaskDomainException(TaskErrorCodes.ValidationError,
+                $"Attachments cannot be changed while the timesheet is {sheet.State}", 409);
+    }
+
+    private static string SanitizeFileName(string fileName)
+    {
+        var name = Path.GetFileName(fileName ?? "").Trim();
+        foreach (var invalid in Path.GetInvalidFileNameChars())
+            name = name.Replace(invalid, '_');
+
+        if (string.IsNullOrWhiteSpace(name))
+            throw new TaskDomainException(TaskErrorCodes.ValidationError, "A file name is required", 400);
+
+        return name.Length > 200 ? name[^200..] : name;
+    }
+
     private async Task EnsureCanViewAsync(int employeeId, int actorEmployeeId, string actorRole)
     {
         if (employeeId == actorEmployeeId) return;
@@ -197,6 +300,21 @@ public class TimesheetService : ITimesheetService
             e.Note,
             e.WorkedOn,
             e.CreatedAt
-        })
+        }),
+        attachments = (sheet.Attachments ?? Array.Empty<TimesheetAttachment>())
+            .OrderBy(a => a.UploadedAt)
+            .Select(MapAttachment)
+    };
+
+    private static object MapAttachment(TimesheetAttachment attachment) => new
+    {
+        attachment.Id,
+        attachment.TimesheetId,
+        attachment.FileName,
+        attachment.ContentType,
+        attachment.SizeBytes,
+        attachment.Sha256,
+        attachment.UploadedById,
+        attachment.UploadedAt
     };
 }

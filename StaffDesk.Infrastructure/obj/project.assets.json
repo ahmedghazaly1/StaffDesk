@@ -1418,8 +1418,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
-              "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj"
+            "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
+              "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj"
             }
           }
         }

@@ -29,4 +29,10 @@ public interface ITimesheetService
     Task<Timesheet> ReopenAsync(int timesheetId, int reviewerEmployeeId, string reason);
     Task<IReadOnlyList<object>> MineAsync(int employeeId);
     Task<IReadOnlyList<object>> PendingReviewAsync(int managerEmployeeId);
+
+    Task<object> UploadAttachmentAsync(int employeeId, DateOnly monthStart, string fileName, string? contentType, Stream content, long sizeBytes);
+    Task<TimesheetAttachmentDownload> DownloadAttachmentAsync(int attachmentId, int actorEmployeeId, string actorRole);
+    Task DeleteAttachmentAsync(int attachmentId, int actorEmployeeId);
 }
+
+public record TimesheetAttachmentDownload(string FileName, string ContentType, Stream Content);

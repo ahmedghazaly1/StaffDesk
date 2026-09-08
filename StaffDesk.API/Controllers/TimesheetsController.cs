@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StaffDesk.API.Common;
+using StaffDesk.Core.Entities;
 using StaffDesk.Core.Exceptions;
 using StaffDesk.Core.Interfaces;
 
@@ -71,6 +72,63 @@ public class TimesheetsController : ApiControllerBase
         }
     }
 
+    [HttpPost("attachments")]
+    [RequestSizeLimit(TimesheetAttachmentRules.MaxSizeBytes + 1024 * 1024)]
+    public async Task<IActionResult> UploadAttachment([FromForm] TimesheetAttachmentUploadDto dto)
+    {
+        var employeeId = await GetCurrentEmployeeIdAsync();
+        if (employeeId == null) return NoEmployeeLinkError();
+
+        if (dto.File == null || dto.File.Length == 0)
+            return StatusCode(400, ApiError.Build(TaskErrorCodes.ValidationError, "Choose a file to upload"));
+
+        try
+        {
+            await using var stream = dto.File.OpenReadStream();
+            var attachment = await _timesheets.UploadAttachmentAsync(
+                employeeId.Value, dto.WeekStart, dto.File.FileName, dto.File.ContentType, stream, dto.File.Length);
+            return Ok(attachment);
+        }
+        catch (TaskDomainException ex)
+        {
+            return StatusCode(ex.HttpStatus, ApiError.Build(ex.Code, ex.Message, ex.Details));
+        }
+    }
+
+    [HttpGet("attachments/{attachmentId:int}/download")]
+    public async Task<IActionResult> DownloadAttachment(int attachmentId)
+    {
+        var actorId = await GetCurrentEmployeeIdAsync();
+        if (actorId == null) return NoEmployeeLinkError();
+
+        try
+        {
+            var file = await _timesheets.DownloadAttachmentAsync(attachmentId, actorId.Value, await GetActorRoleAsync());
+            return File(file.Content, file.ContentType, file.FileName);
+        }
+        catch (TaskDomainException ex)
+        {
+            return StatusCode(ex.HttpStatus, ApiError.Build(ex.Code, ex.Message, ex.Details));
+        }
+    }
+
+    [HttpDelete("attachments/{attachmentId:int}")]
+    public async Task<IActionResult> DeleteAttachment(int attachmentId)
+    {
+        var actorId = await GetCurrentEmployeeIdAsync();
+        if (actorId == null) return NoEmployeeLinkError();
+
+        try
+        {
+            await _timesheets.DeleteAttachmentAsync(attachmentId, actorId.Value);
+            return NoContent();
+        }
+        catch (TaskDomainException ex)
+        {
+            return StatusCode(ex.HttpStatus, ApiError.Build(ex.Code, ex.Message, ex.Details));
+        }
+    }
+
     [HttpPost("{id:int}/review")]
     public async Task<IActionResult> Review(int id, [FromBody] TimesheetReviewDto dto)
     {
@@ -117,6 +175,13 @@ public class TimesheetsController : ApiControllerBase
 public class TimesheetWeekDto
 {
     public DateOnly WeekStart { get; set; }
+}
+
+public class TimesheetAttachmentUploadDto
+{
+    /// <summary>First day of the month the file belongs to.</summary>
+    public DateOnly WeekStart { get; set; }
+    public IFormFile? File { get; set; }
 }
 
 public class TimesheetReviewDto

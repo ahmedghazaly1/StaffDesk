@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "XQRXf0PE03xEB0NmVOJbfDbEF5Cf7AzwHJ4YzutXFp0=",
+  "Hash": "TrUyWC6QvbwoURTZtERNC2tsTQZq/f2sqnEQdqxY/rM=",
   "Source": "StaffDesk.API",
   "BasePath": "_content/StaffDesk.API",
   "Mode": "Default",
@@ -17,7 +17,7 @@
   ],
   "Assets": [
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\analytics.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\analytics.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -36,7 +36,7 @@
       "OriginalItemSpec": "wwwroot\\analytics.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\app.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\app.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -55,7 +55,7 @@
       "OriginalItemSpec": "wwwroot\\app.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\approvals.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\approvals.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -74,7 +74,7 @@
       "OriginalItemSpec": "wwwroot\\approvals.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\audit.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\audit.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -93,7 +93,7 @@
       "OriginalItemSpec": "wwwroot\\audit.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\calendars.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\calendars.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -112,7 +112,7 @@
       "OriginalItemSpec": "wwwroot\\calendars.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\capacity.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\capacity.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -131,7 +131,7 @@
       "OriginalItemSpec": "wwwroot\\capacity.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\dashboard.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\dashboard.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -150,7 +150,7 @@
       "OriginalItemSpec": "wwwroot\\dashboard.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\delegations.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\delegations.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -169,7 +169,7 @@
       "OriginalItemSpec": "wwwroot\\delegations.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\departments.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\departments.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -188,7 +188,7 @@
       "OriginalItemSpec": "wwwroot\\departments.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\employees.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\employees.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -207,7 +207,7 @@
       "OriginalItemSpec": "wwwroot\\employees.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\i18n.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\i18n.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -226,7 +226,7 @@
       "OriginalItemSpec": "wwwroot\\i18n.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\index.html",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\index.html",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -245,7 +245,7 @@
       "OriginalItemSpec": "wwwroot\\index.html"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\leave.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\leave.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -264,7 +264,7 @@
       "OriginalItemSpec": "wwwroot\\leave.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\levels.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\levels.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -283,7 +283,7 @@
       "OriginalItemSpec": "wwwroot\\levels.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\login.html",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\login.html",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -302,7 +302,7 @@
       "OriginalItemSpec": "wwwroot\\login.html"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\notifications.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\notifications.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -321,7 +321,7 @@
       "OriginalItemSpec": "wwwroot\\notifications.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\operations.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\operations.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -340,7 +340,7 @@
       "OriginalItemSpec": "wwwroot\\operations.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\performance.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\performance.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -359,7 +359,7 @@
       "OriginalItemSpec": "wwwroot\\performance.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\platform.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\platform.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -378,7 +378,7 @@
       "OriginalItemSpec": "wwwroot\\platform.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\profile.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\profile.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -397,7 +397,7 @@
       "OriginalItemSpec": "wwwroot\\profile.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\requests.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\requests.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -416,7 +416,7 @@
       "OriginalItemSpec": "wwwroot\\requests.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\security.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\security.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -435,7 +435,7 @@
       "OriginalItemSpec": "wwwroot\\security.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\sla.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\sla.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -454,7 +454,7 @@
       "OriginalItemSpec": "wwwroot\\sla.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\style.css",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\style.css",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -473,7 +473,7 @@
       "OriginalItemSpec": "wwwroot\\style.css"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\task-detail.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\task-detail.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -492,7 +492,7 @@
       "OriginalItemSpec": "wwwroot\\task-detail.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\tasks.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\tasks.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -511,7 +511,7 @@
       "OriginalItemSpec": "wwwroot\\tasks.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\templates.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\templates.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -530,7 +530,7 @@
       "OriginalItemSpec": "wwwroot\\templates.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\timesheets.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\timesheets.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",
@@ -549,7 +549,7 @@
       "OriginalItemSpec": "wwwroot\\timesheets.js"
     },
     {
-      "Identity": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\toast.js",
+      "Identity": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\toast.js",
       "SourceId": "StaffDesk.API",
       "SourceType": "Discovered",
       "ContentRoot": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\wwwroot\\",

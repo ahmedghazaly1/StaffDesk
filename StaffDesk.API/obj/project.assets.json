@@ -4688,11 +4688,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\StaffDesk.API.csproj",
+      "projectUniqueName": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\StaffDesk.API.csproj",
       "projectName": "StaffDesk.API",
-      "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\StaffDesk.API.csproj",
+      "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\StaffDesk.API.csproj",
       "packagesPath": "C:\\Users\\Ahmed\\AppData\\Local\\Temp\\cursor-sandbox-cache\\44b1b964a9199204d0e47218dfff7cab\\nuget",
-      "outputPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.API\\obj\\",
+      "outputPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -4707,11 +4707,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
-              "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj"
+            "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
+              "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj"
             },
-            "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {
-              "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj"
+            "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {
+              "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj"
             }
           }
         }

@@ -23,6 +23,9 @@ public class Timesheet
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<TaskTimeEntry> Entries { get; set; } = new List<TaskTimeEntry>();
+
+    /// <summary>Supporting files submitted with this timesheet for the reviewer to download.</summary>
+    public ICollection<TimesheetAttachment> Attachments { get; set; } = new List<TimesheetAttachment>();
 }
 
 public static class TimesheetStates

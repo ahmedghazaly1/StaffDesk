@@ -21,6 +21,7 @@ public class TimesheetRepository : ITimesheetRepository
         weekStart = MonthStartOf(weekStart);
         var existing = await _db.Timesheets
             .Include(t => t.Entries)
+            .Include(t => t.Attachments)
             .FirstOrDefaultAsync(t => t.EmployeeId == employeeId && t.WeekStart == weekStart);
         if (existing != null) return existing;
 
@@ -38,7 +39,7 @@ public class TimesheetRepository : ITimesheetRepository
     }
 
     public Task<Timesheet?> GetByIdAsync(int id) =>
-        _db.Timesheets.Include(t => t.Entries).Include(t => t.Employee)
+        _db.Timesheets.Include(t => t.Entries).Include(t => t.Employee).Include(t => t.Attachments)
             .FirstOrDefaultAsync(t => t.Id == id);
 
     public async Task UpdateAsync(Timesheet timesheet)
@@ -59,6 +60,7 @@ public class TimesheetRepository : ITimesheetRepository
     public async Task<IReadOnlyList<Timesheet>> GetForEmployeeAsync(int employeeId) =>
         await _db.Timesheets.AsNoTracking()
             .Include(t => t.Entries)
+            .Include(t => t.Attachments)
             .Where(t => t.EmployeeId == employeeId)
             .OrderByDescending(t => t.WeekStart)
             .ToListAsync();
@@ -69,8 +71,27 @@ public class TimesheetRepository : ITimesheetRepository
         return await _db.Timesheets.AsNoTracking()
             .Include(t => t.Employee)
             .Include(t => t.Entries)
+            .Include(t => t.Attachments)
             .Where(t => t.State == TimesheetStates.Submitted && ids.Contains(t.EmployeeId))
             .OrderBy(t => t.WeekStart)
             .ToListAsync();
+    }
+
+    public async Task<TimesheetAttachment> AddAttachmentAsync(TimesheetAttachment attachment)
+    {
+        _db.TimesheetAttachments.Add(attachment);
+        await _db.SaveChangesAsync();
+        return attachment;
+    }
+
+    public Task<TimesheetAttachment?> GetAttachmentAsync(int attachmentId) =>
+        _db.TimesheetAttachments
+            .Include(a => a.Timesheet)
+            .FirstOrDefaultAsync(a => a.Id == attachmentId);
+
+    public async Task RemoveAttachmentAsync(TimesheetAttachment attachment)
+    {
+        _db.TimesheetAttachments.Remove(attachment);
+        await _db.SaveChangesAsync();
     }
 }

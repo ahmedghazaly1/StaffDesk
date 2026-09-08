@@ -102,6 +102,7 @@ public class AppDbContext : DbContext
     public DbSet<CalendarHoliday> CalendarHolidays { get; set; }
     public DbSet<LeaveRequest> LeaveRequests { get; set; }
     public DbSet<Timesheet> Timesheets { get; set; }
+    public DbSet<TimesheetAttachment> TimesheetAttachments { get; set; }
 
     // ============================================
     // Part D — Analytics snapshots
@@ -849,6 +850,29 @@ public class AppDbContext : DbContext
             .WithMany(t => t.Entries)
             .HasForeignKey(e => e.TimesheetId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<TimesheetAttachment>()
+            .HasOne(a => a.Timesheet)
+            .WithMany(t => t.Attachments)
+            .HasForeignKey(a => a.TimesheetId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TimesheetAttachment>()
+            .HasOne(a => a.UploadedBy)
+            .WithMany()
+            .HasForeignKey(a => a.UploadedById)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TimesheetAttachment>()
+            .HasIndex(a => a.TimesheetId);
+
+        modelBuilder.Entity<TimesheetAttachment>(entity =>
+        {
+            entity.Property(a => a.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(a => a.ContentType).HasMaxLength(160).IsRequired();
+            entity.Property(a => a.StoragePath).HasMaxLength(400).IsRequired();
+            entity.Property(a => a.Sha256).HasMaxLength(64);
+        });
 
         // ============================================
         // Part D — DailyMetricSnapshot (AN-3/AN-4)

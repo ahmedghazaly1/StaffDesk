@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {}
+    "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {}
   },
   "projects": {
-    "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
+    "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj",
+        "projectUniqueName": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj",
         "projectName": "StaffDesk.Core",
-        "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj",
+        "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj",
         "packagesPath": "C:\\Users\\Ahmed\\AppData\\Local\\Temp\\cursor-sandbox-cache\\44b1b964a9199204d0e47218dfff7cab\\nuget",
-        "outputPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\obj\\",
+        "outputPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -84,14 +84,14 @@
         }
       }
     },
-    "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {
+    "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
+        "projectUniqueName": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
         "projectName": "StaffDesk.Infrastructure",
-        "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
+        "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\StaffDesk.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Ahmed\\AppData\\Local\\Temp\\cursor-sandbox-cache\\44b1b964a9199204d0e47218dfff7cab\\nuget",
-        "outputPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\obj\\",
+        "outputPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -106,8 +106,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
-                "projectPath": "d:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj"
+              "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj": {
+                "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj"
               }
             }
           }
