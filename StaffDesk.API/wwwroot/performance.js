@@ -225,8 +225,12 @@
     const overallRating = parseInt(document.getElementById('pe-cal-rating').value, 10);
     const reason = document.getElementById('pe-cal-reason').value;
     try {
+      // The endpoint demands If-Match, and this panel can target a review that was never
+      // read here, so fetch it first to cache the current ETag under review:<id>.
+      await api('/v1/reviews/' + id);
       const row = await api('/v1/reviews/' + id + '/calibrated-rating', {
         method: 'PATCH',
+        etagKey: 'review:' + id,
         body: JSON.stringify({ overallRating, reason })
       });
       peOut('pe-cal-out', row);

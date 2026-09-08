@@ -10,7 +10,7 @@
         "projectUniqueName": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj",
         "projectName": "StaffDesk.Core",
         "projectPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\StaffDesk.Core.csproj",
-        "packagesPath": "C:\\Users\\Ahmed\\AppData\\Local\\Temp\\cursor-sandbox-cache\\44b1b964a9199204d0e47218dfff7cab\\nuget",
+        "packagesPath": "C:\\Users\\Ahmed\\.nuget\\packages\\",
         "outputPath": "D:\\PROJECTS\\StaffDesk\\StaffDesk.Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
